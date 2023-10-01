@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "description": "An implementation of the game from this talk: https://youtu.be/t9WMNuyjm4w",
   "main": "server/main.js",
+  "type": "module",
   "scripts": {
     "start": "node server/main.js",
     "devstart": "nodemon server/main.js -w server/* -w lib/*"

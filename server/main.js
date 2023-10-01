@@ -1,4 +1,5 @@
-const { initDB, saveDB } = require("./lib_db.js");
+import { initDB, saveDB } from "./lib_db.js";
+import Game from "./game.js";
 
 initDB();
 

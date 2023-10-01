@@ -1,4 +1,4 @@
-module.exports.initDB = function () {
+export function initDB() {
     const fs = require("fs");
     if (!fs.existsSync("./db.json")) {
         fs.writeFileSync("./db.json", JSON.stringify({
@@ -6,9 +6,9 @@ module.exports.initDB = function () {
             players: {}
         }));
     }
-    global.db = require("./db.json");
+    global.db = JSON.parse(fs.readFileSync("./db.json"));
 }
-module.exports.saveDB = function () {
+export function saveDB() {
     const fs = require("fs");
     fs.writeFileSync("./db.json", JSON.stringify(db));
 }
