@@ -3,11 +3,13 @@ import Coord from "../lib/lib_coord.js";
 const { dist } = Coord;
 const crd = () => new Coord(...arguments);
 import Grid from "../lib/lib_grid.js";
+import {shuffleArray} from "../lib/lib_util.js";
 
-function spreadPlayers(count, dims) {
-    throw new Error("TODO");
-    /// algoritum za opredelqne poziciite na count igracha v pole dims na dims
-    return [crd(0, 0), crd(1, 0)];
+function spreadPlayers(count, dim) {
+    /// algoritum za opredelqne poziciite na count igracha v pole dim na dim
+    let possible = Array(dim * dim).fill(null).map((_, idx) => crd(Math.floor(idx / dim), idx % dim));
+    shuffleArray(possible);
+    return possible.slice(0, count);
 }
 
 const SUCCESS = { success: true, error: null };
