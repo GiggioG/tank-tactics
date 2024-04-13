@@ -1,2 +1,4 @@
 node_modules
 certs
+db.json
+log.txt
