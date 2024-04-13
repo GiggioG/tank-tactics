@@ -4,6 +4,7 @@ export function initDB() {
         fs.writeFileSync("./db.json", JSON.stringify({
             status: "registration", // "registration", "in-game", "post-game"
             accounts: {},
+            sessions: {},
             gameState: null
         }));
     }
@@ -11,4 +12,7 @@ export function initDB() {
 }
 export function saveDB() {
     fs.writeFileSync("./db.json", JSON.stringify(db));
+}
+export function clearExpiredSessions(){
+    throw new Error("TODO");
 }
