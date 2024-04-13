@@ -4,7 +4,7 @@ export function initDB() {
         fs.writeFileSync("./db.json", JSON.stringify({
             status: "registration", // "registration", "in-game", "post-game"
             accounts: {},
-            sessions: {},
+            sessions: {}, /// stored in cookies
             gameState: null
         }));
     }
