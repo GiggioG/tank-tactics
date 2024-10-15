@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-Game</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/game.css">
+    <link rel="stylesheet" href="./css/modal.css">
+    <script src="./js/modals.js"></script>
+    <script async src="./js/includes.js" id="includes" data-includes="loginIndicator:loginIndicator:loginIndicator,userlist:userlist:userlist"></script>
+</head>
+
+<body>
+    <i class="incl" data-incl="loginIndicator">LOGIN INDICATOR</i>
+    <div id="canvas-main-container">
+        <div id="canvas-container"></div>
+        <main>
+            <i class="incl" data-incl="userlist">USER LIST</i>
+        </main>
+    </div>
+    <script>
+        /**
+         * @param {CanvasRenderingContext2D} ctx 
+         */
+        function draw(ctx, dim) {
+            ctx.fillStyle = "red";
+            ctx.fillRect(0, 0, dim, dim);
+            const TIMES = 8;
+            for(let i = 0; i < TIMES; i++){
+                for(let j = 0; j < TIMES; j++){
+                    ctx.fillStyle = `rgb(0, ${i*255/TIMES}, ${j*255/TIMES})`;
+                    ctx.fillRect(i*dim/TIMES, j*dim/TIMES, dim/TIMES, dim/TIMES);
+                }
+            }
+        }
+
+        async function main() {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            let canvasDim = Math.min(windowWidth, windowHeight);
+            let canvas = document.createElement("canvas");
+            canvas.width = canvasDim;
+            canvas.height = canvasDim;
+            draw(canvas.getContext("2d"), canvasDim);
+
+            const canvasContainer = document.querySelector("div#canvas-container");
+            canvasContainer.appendChild(canvas);
+            canvasContainer.style.width = canvasDim + "px";
+            canvasContainer.style.height = canvasDim + "px";
+        }
+    </script>
+</body>
+
+</html>

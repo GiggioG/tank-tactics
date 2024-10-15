@@ -110,6 +110,10 @@ function unregister(query, cookies){
     return { status: 200, data: "Unregistered.", setCookies: [`session=null; expires=${getYesterday().toUTCString()}; path=/`] }
 }
 
+function getGameStatus(query, cookies){
+    return {status: 200, data: db.status};
+}
+
 /**
  * 
  * @param {url.URL} parsed
@@ -135,6 +139,8 @@ export default function api_endpoint(parsed, req, res) {
         ({ status, data, setCookies } = whoami(query, cookies));
     } else if(endpoint == "unregister" && req.method == "DELETE" && db.status == "registration"){
         ({ status, data, setCookies } = unregister(query, cookies));
+    } else if(endpoint == "getGameState" && req.method == "GET"){
+        ({status, data, setCookies} = getGameStatus(query, cookies));
     }else {
         status = 404;
         data = "Error 404: Not found.";

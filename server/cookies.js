@@ -1,4 +1,7 @@
+import { clearExpiredSessions } from "./db.js";
+
 export function getSessionUser(cookies) {
+    clearExpiredSessions();
     if (!cookies["session"]) {
         return null;
     }

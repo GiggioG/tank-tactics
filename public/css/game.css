@@ -1,0 +1,19 @@
+div#canvas-main-container {
+    display: flex;
+    /* flex-direction: row; */
+    flex-direction: column;
+    width: max-content;
+    height: auto;
+}
+
+canvas {
+    z-index: 1000;
+}
+
+body {
+    height: 100%;
+}
+
+main {
+    width: auto;
+}

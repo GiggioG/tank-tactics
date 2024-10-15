@@ -1,0 +1,28 @@
+div.modalBkg:not(.active) {
+    display: none;
+}
+
+div.modalBkg {
+    background-color: rgba(0, 0, 0, 50%);
+    z-index: 1000;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+div.modal {
+    display: block;
+    background-color: rgba(0, 0, 0, 50%);
+    color: white;
+    text-align: center;
+}
+
+p.modalError {
+    color: red;
+}

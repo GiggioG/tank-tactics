@@ -1,0 +1,49 @@
+:root {
+    --text-col: white;
+    --bkg-col: black;
+    --button-bkg-col: rgb(50,50,50);
+}
+
+/* TODO: add global font for whole project so it doesnt look like *crap* */
+
+* {
+    color: var(--text-col);
+    background-color: var(--bkg-col);
+}
+
+:not(main *) {
+    margin: 0px;
+    padding: 0px;
+}
+
+button {
+    border: 3px groove var(--text-col);
+    background-color: var(--button-bkg-col);
+}
+
+button:active {
+    border-style: inset;
+}
+
+ul {
+    list-style: square;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+main {
+    width: fit-content;
+    /* text-align: center; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.highlighted {
+    color: red;
+    /* TODO */
+}

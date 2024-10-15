@@ -1,0 +1,63 @@
+<style>
+    div#loginIndicator {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        padding: 2px;
+    }
+
+    div#loginIndicator:not(.open) *{
+        display :none;
+    }
+
+    div#loginIndicator:not(.open):after {
+        content: "👤";
+    }
+</style>
+
+<div id="loginIndicator">
+    <template>
+        <button onclick='openModal(document.querySelector("div#loginModalBkg"));'>Log In</button>
+        <button class="onlyRegistration" onclick='openModal(document.querySelector("div#registerModalBkg"));'>Register</button>
+    </template>
+    <template>
+        <span><span id="userIcon">👤</span><span class="username">USERNAME</span></span>
+        <div style="text-align: right;">
+            <button id="logOutButton">Log out</button>
+            <br>
+            <button class="onlyRegistration" id="unregisterButton">Unregister</button>
+        </div>
+    </template>
+</div>
+
+<div class="modalBkg" id="loginModalBkg">
+    <div class="modal">
+        <h2>Log In</h2>
+        <form onsubmit="return false;"> <!-- stackoverflow -->
+            <label>Username: </label><input class="uname"><br>
+            <label>Password: </label><input type="password" class="passwd"><br>
+            <br>
+            <button id="modalLogInButton">Log In</button>
+            <button onclick="closeModal()">Cancel</button>
+            <br>
+            <p class="modalError"></p>
+        </form>
+    </div>
+</div>
+
+<div class="modalBkg" id="registerModalBkg">
+    <div class="modal">
+        <h2>Register</h2>
+        <form onsubmit="return false;"> <!-- stackoverflow -->
+            <label>Username: </label><input class="uname"><br>
+            <label>Password: </label><input type="password" class="passwd"><br>
+            <br>
+            <button id="modalRegisterButton">Register</button>
+            <button onclick="closeModal()">Cancel</button>
+            <br>
+            <p class="modalError"></p>
+        </form>
+    </div>
+</div>

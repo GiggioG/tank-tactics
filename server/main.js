@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as url from "url";
 import * as path from "path";
 import * as ws from "ws";
-import { initDB, saveDB } from "./db.js";
+import { initDB, saveDB, clearExpiredSessions } from "./db.js";
 import Game from "./game.js";
 import Coord from "../lib/coord.js"
 import Grid from "../lib/grid.js"
