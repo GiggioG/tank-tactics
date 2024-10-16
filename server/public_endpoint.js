@@ -11,7 +11,16 @@ export default function public_endpoint(parsed, req, res) {
         if (!filepath.startsWith(libDir)) { return; }
     } else {
         let publicDir = path.join(baseDir, "public"); //.replace(/\\/g, '/');
-        if (pathname == "/") { pathname = `/${db.status}.html`; }
+        if (pathname == "/") {
+            let defaultPage = {
+                "registration": "account",
+                "in-game": "game",
+                "post-game": "game"
+            }
+            let rediRectPathname = `/${defaultPage[db.status]}.html`;
+            res.writeHead(302, "Found", {Location: rediRectPathname});
+            return res.end();
+        }
         filepath = path.join(publicDir, pathname);
         if (!filepath.startsWith(publicDir)) { return; }
     }

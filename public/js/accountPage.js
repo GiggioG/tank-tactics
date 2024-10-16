@@ -1,24 +1,14 @@
-async function getLoggedInUser(){
-    let resp = await fetch(`${location.origin}/api/whoami`);
-    return await resp.json();
-}
-
-async function getGameState(){
-    let resp = await fetch(`${location.origin}/api/getGameState`);
-    return await resp.text();
-}
-
-async function _login(){
+async function _login() {
     let uname = document.querySelector("div.modalBkg.active input.uname").value;
     let passwd = document.querySelector("div.modalBkg.active input.passwd").value;
 
-    if(!uname || !passwd){
+    if (!uname || !passwd) {
         document.querySelector("div.modalBkg.active p.modalError").innerText = "You must include both username and password.";
         return;
     }
-    
+
     let resp = await fetch(`${location.origin}/api/login?uname=${uname}&passwd=${passwd}`, { method: "POST" });
-    if(resp.ok){ location.reload(); }
+    if (resp.ok) { location.reload(); }
     let text = await resp.text();
     document.querySelector("div.modalBkg.active p.modalError").innerText = text;
 }
@@ -56,38 +46,16 @@ async function _unregister() {
     location.reload();
 }
 
-async function _logout(){
-    if(!confirm("Confirm log out?")){ return; }
+async function _logout() {
+    if (!confirm("Confirm log out?")) { return; }
     await fetch(`${location.origin}/api/logout`, { method: "DELETE" });
     location.reload();
 }
 
-function setupListeners(){
+function setupListeners() {
     document.querySelector("button#modalLogInButton")?.addEventListener("click", _login);
     document.querySelector("button#logOutButton")?.addEventListener("click", _logout);
 
     document.querySelector("button#modalRegisterButton")?.addEventListener("click", _register);
     document.querySelector("button#unregisterButton")?.addEventListener("click", _unregister);
 }
-
-export default async function main(){
-    let div = document.querySelector("div#loginIndicator");
-    let notLoggedIn = div.querySelectorAll("template")[0];
-    let loggedIn = div.querySelectorAll("template")[1];
-    
-    let uname = await getLoggedInUser();
-    let gameState = await getGameState();
-    window.sessionUname = uname;
-    if(!uname){
-        div.replaceChildren(notLoggedIn.content);
-        div.classList.add("notLogggedIn");
-    }else{
-        div.classList.add("loggedIn");
-        div.replaceChildren(loggedIn.content);
-        div.querySelector("span.username").innerText = uname;
-    }
-    if(gameState != "registration"){
-        Array.from(div.querySelectorAll(".onlyRegistration")).forEach(e=>e.remove());
-    }
-    setupListeners();
-};

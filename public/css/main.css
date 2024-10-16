@@ -2,13 +2,22 @@
     --text-col: white;
     --bkg-col: black;
     --button-bkg-col: rgb(50,50,50);
+    --highlight-col: rgb(0, 0, 255);
+    --light-highlight-col: rgb(127, 127, 255);
+    --nav-height: 3em;
 }
 
 /* TODO: add global font for whole project so it doesnt look like *crap* */
 
-* {
+main{
+    height: calc(100vh - var(--nav-height));
+    overflow: scroll;
     color: var(--text-col);
     background-color: var(--bkg-col);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 :not(main *) {
@@ -19,6 +28,9 @@
 button {
     border: 3px groove var(--text-col);
     background-color: var(--button-bkg-col);
+    color: var(--text-col);
+    font-size: large;
+    margin: 10px;
 }
 
 button:active {
@@ -32,18 +44,40 @@ ul {
 body {
     display: flex;
     flex-direction: column;
-    align-items: center;
-}
-
-main {
-    width: fit-content;
-    /* text-align: center; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .highlighted {
-    color: red;
-    /* TODO */
+    color: var(--highlight-col);
+    /* TODO make beautiful*/
+}
+
+nav ul {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    bottom: 0px;
+    list-style: none;
+    padding-left: 0px;
+    height: var(--nav-height);
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--text-col);
+    background-color: var(--bkg-col);
+}
+
+nav ul li {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+nav ul li a {
+    fill: var(--text-col);
+}
+
+nav ul li.selected a {
+    fill: var(--light-highlight-col);
 }
