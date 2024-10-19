@@ -1,4 +1,1 @@
 TODO
-
-what to do if the voted player has died
-(when a player dies remove the votes for him)

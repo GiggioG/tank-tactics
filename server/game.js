@@ -148,6 +148,9 @@ export default class Game {
         if (this.players[patient].hp <= 0) {
             // this.players[agent].ap += this.players[patient].ap;
             this.alivePlayers--;
+            for (uname in this.players) {
+                if(this.players[uname].vote == patient){ this.players[uname].vote = null; }
+            }
             if (this.alivePlayers == 1) {
                 this._win(agent);
             }
