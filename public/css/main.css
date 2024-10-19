@@ -1,7 +1,7 @@
 :root {
     --text-col: white;
     --bkg-col: black;
-    --button-bkg-col: rgb(50,50,50);
+    --button-bkg-col: rgb(50, 50, 50);
     --highlight-col: rgb(0, 0, 255);
     --light-highlight-col: rgb(127, 127, 255);
     --nav-height: 3em;
@@ -9,7 +9,7 @@
 
 /* TODO: add global font for whole project so it doesnt look like *crap* */
 
-main{
+main {
     height: calc(100vh - var(--nav-height));
     overflow: scroll;
     color: var(--text-col);
@@ -80,4 +80,23 @@ nav ul li a {
 
 nav ul li.selected a {
     fill: var(--light-highlight-col);
+}
+
+li.playerList-winner {
+    color: yellow;
+    font-weight: bold;
+}
+
+li.playerList-winner::before {
+    content: "👑";
+}
+
+li.playerList-dead {
+    color: red;
+    font-style: italic;
+}
+
+li.playerList-dead::before {
+    content: "💀";
+    color: red;
 }

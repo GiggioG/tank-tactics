@@ -41,7 +41,7 @@ export default function ws_handler(sock, req) {
 
     sock.send(JSON.stringify({
         type: "gameState",
-        state: Game.instance.serialise()
+        state: Game.instance.serialiseForClient()
     }));
     sock.on("message", rawMsg => {
         if(!sock.user){ return writeError(sock, "spectators (not logged in users) can't do things."); }
@@ -85,7 +85,7 @@ export default function ws_handler(sock, req) {
 
         if(attempt){
             if(attempt.success){
-                db.gameState = Game.instance.serialise();
+                db.gameState = Game.instance.serialiseForClient();
                 saveDB();
                 return broadcast(attempt.result);
             }

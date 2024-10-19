@@ -5,6 +5,7 @@ import * as https from "http"; // TODO
 import * as crypto from "crypto";
 import { saveDB } from "./db.js";
 import { getSessionUser, parseCookies } from "./cookies.js";
+import Game from "./game.js";
 
 const COOKIE_EXPIRY = 5 * 60 * 1000;/// millis // TODO
 
@@ -16,6 +17,9 @@ const getYesterday = () => new Date(Number(new Date) - 24 * 60 * 60 * 1000);
 
 function list_users() {
     let list = Object.keys(db.accounts);
+    if(db.gameState != "registration"){
+        list = list.map(e => ({name: e, hp: Game.instance.players[e].hp}) );
+    }
     return { status: 200, data: JSON.stringify(list) };
 }
 

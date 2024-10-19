@@ -80,6 +80,20 @@ export default class Game {
         }
         return JSON.stringify(obj);
     }
+    serialiseForClient(){ /// without player votes
+        let obj = {
+            dim: this.dim,
+            alivePlayers: this.alivePlayers,
+            gameOver: this.gameOver,
+            winner: this.winner,
+            players: {...this.players},
+            grid: this.grid.serialise()
+        }
+        for(const uname in obj.players){
+            delete obj.players[uname].vote; /// votes should be anonymous
+        }
+        return JSON.stringify(obj);
+    }
     _win(winner) {
         this.winner = winner;
         this.gameOver = true;
