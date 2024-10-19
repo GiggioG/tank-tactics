@@ -227,7 +227,7 @@ export default class Game {
         for (uname in this.players) {
             if (this.players[uname].hp > 0) {
                 this.players[uname].ap++;
-                changedUsers.vote.add(uname);
+                changedUsers.ap.add(uname);
             }
         }
         let changes = [

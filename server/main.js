@@ -63,3 +63,6 @@ if(db.status != "registration"){
 // setInterval(Game.instance.giveOutAP, 24*60*60*1000);
 // setInterval(saveDB, 2 * 60 * 1000);
 // setInterval(clearInvalidSessions, 2*60*1000); (invalid: expired or deleted user)
+
+// TODO
+// result for giving out ap should be broadcast
