@@ -47,7 +47,7 @@ async function _unregister() {
 }
 
 async function _logout() {
-    if (!confirm("Confirm log out?")) { return; }
+    // if (!confirm("Confirm log out?")) { return; } /// TODO decide if there should be a confirmation message
     await fetch(`${location.origin}/api/logout`, { method: "DELETE" });
     location.reload();
 }

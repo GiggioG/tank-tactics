@@ -14,6 +14,12 @@
         (async () => {
             const list = await (await fetch(`${location.origin}/api/list_users`)).json();
             const ul = document.querySelector("ul#userlist");
+            if(list.length == 0){
+                let p = document.createElement("p");
+                p.classList.add("listIsEmptyMessage");
+                p.innerHTML = "No players registered yet.";
+                ul.replaceWith(p);
+            }
             await getLoggedInUser();
             await getGameState();
 

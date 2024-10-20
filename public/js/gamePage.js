@@ -9,7 +9,6 @@ let ctx = null;
 let width = null, height = null;
 let canvasX = null, canvasY = null;
 
-let loadingAnimationInterval = null;
 
 let currState = null;
 
@@ -31,7 +30,7 @@ function boundOrigin(){
     }else{
         originY = height/2 - gridSide/2;
     }
-
+    
     if(originX != oldX || originY != oldY){
         draw();
     }
@@ -83,15 +82,22 @@ function draw(){
     for(let r = 0; r < dim; r++){
         for(let c = 0; c < dim; c++){
             if(currState.grid[r][c] == null){ continue; }
-            const p = currState.grid[r][c];
-            ctx.fillStyle = `rgb(${currState.players[p].hp * 30}, 0, 0)`;
-            ctx.fillRect(originX + c*squareSide, originY + r*squareSide, squareSide, squareSide);
+            const p = currState.players[currState.grid[r][c]];
+            let x = originX + c*squareSide, y = originY + r*squareSide;
+            ctx.fillStyle = "darkgreen";
+            ctx.fillRect(x, y, squareSide, squareSide);
+            ctx.lineWidth = 1;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = "2em sans-serif";
+            ctx.fillStyle = "white"; ///colors
+            ctx.fillText(p.name, x + squareSide/2, y + squareSide/2, squareSide);
         }
     }
 }
 
 function handleClick(cx, cy){
-    ctx.strokeStyle = "red"; ///colors
+    ctx.strokeStyle = "red";
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(cx, cy);
@@ -169,16 +175,16 @@ function parseMessage({data}){
 /**
  * 
  * @param {CanvasRenderingContext2D} _ctx
- */
+*/
 export async function gamePageInit(_ctx, _width, _height) {
     ctx = _ctx;
     width = _width;
     height = _height;
-
-    loadingAnimationInterval = setInterval(()=>{
+    
+    let loadingAnimationInterval = setInterval(()=>{
         ctx.fillStyle = "black"; /// TODO - colours (vsichkite sa markirani s ///colors)
         ctx.fillRect(0, 0, width, height);
-
+        
         ctx.fillStyle = "red"; ///colors
         ctx.strokeStyle = "blue"; ///colors
         ctx.lineWidth = 2;

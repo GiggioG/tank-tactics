@@ -5,6 +5,9 @@
     --highlight-col: rgb(0, 0, 255);
     --light-highlight-col: rgb(127, 127, 255);
     --nav-height: 3em;
+    --list-empty-message-col: grey;
+    --playerlist-dead-col: red;
+    --playerlist-winner-col: yellow;
 }
 
 /* TODO: add global font for whole project so it doesnt look like *crap* */
@@ -83,7 +86,7 @@ nav ul li.selected a {
 }
 
 li.playerList-winner {
-    color: yellow;
+    color: var(playerlist-winner-col);
     font-weight: bold;
 }
 
@@ -92,10 +95,16 @@ li.playerList-winner::before {
 }
 
 li.playerList-dead {
-    color: red;
+    color: var(playerlist-dead-col);
     font-style: italic;
 }
 
 li.playerList-dead::before {
     content: "💀";
+}
+
+.listIsEmptyMessage{
+    color: var(--list-empty-message-col);
+    /* font-size: small; */
+    font-style: italic;
 }
