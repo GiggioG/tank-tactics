@@ -35,7 +35,8 @@ export default class Game {
     static instance = null;
     constructor(users) {
         if (arguments.length == 0) { return; } // intended to create an empty object to use with deserialise
-        this.dim = 2 * Math.ceil(Math.sqrt(users.length)) + 1;
+        // this.dim = 2 * Math.ceil(Math.sqrt(users.length)) + 1;
+        this.dim = Math.ceil(Math.sqrt( (484/17) * users.length));
         this.grid = new Grid(this.dim);
         let positions = spreadPlayers(users.length, this.dim);
         this.players = {};

@@ -49,7 +49,7 @@ export default function ws_handler(sock, req) {
         const msg = JSON.parse(rawMsg);
         let attempt = null;
         if(msg.type == "move"){
-            if(!msg.coord || typeof msg.coord != "string" || Coord.isCoord(msg.coord)){
+            if(!msg.coord || typeof msg.coord != "string" || !Coord.isCoord(msg.coord)){
                 return writeError(sock, "ws message must include coord (.toString)");
             }
             attempt = Game.instance.tryMove(sock.user, Coord.getCoord(msg.coord));
@@ -85,11 +85,17 @@ export default function ws_handler(sock, req) {
 
         if(attempt){
             if(attempt.success){
-                db.gameState = Game.instance.serialiseForClient();
+                db.gameState = Game.instance.serialise();
                 saveDB();
-                return broadcast(attempt.result);
-            }
-            else {
+                const sendObj = {
+                    type: "updates",
+                    updates: attempt.result
+                };
+                if(msg.type == "vote"){
+                    return sock.send(JSON.stringify({sendObj}))
+                }
+                return broadcast(sendObj);
+            } else {
                 return writeError(sock, attempt.result);
             }
         }

@@ -7,10 +7,25 @@
     <title>Tank Tactics</title>
     <link rel="stylesheet" href="./css/main.css">
     <script src="./js/api_util.js"></script>
-    <script src="./js/gamePage.js"></script>
+    <script src="./js/gamePage.js" type="module"></script>
 
-    <script async src="./includes/nav.js"></script>
-    <script async src="./js/includes.js"></script>
+    <script defer src="./includes/nav.js"></script>
+    <script defer src="./js/includes.js"></script>
+    <script defer type="module">
+        import {gamePageInit} from "./js/gamePage.js";
+        (async () => {
+            await getLoggedInUser();
+            let canvas = document.querySelector("canvas#game-canvas");
+            let ctx = canvas.getContext("2d");
+
+            let {width, height} = document.querySelector("main").getBoundingClientRect();
+
+            canvas.width = width;
+            canvas.height = height;
+
+            gamePageInit(ctx, width, height);
+        })();
+    </script>
 </head>
 
 <body>
@@ -18,19 +33,6 @@
         <canvas id="game-canvas"></canvas>
     </main>
     <i class="incl" data-incl="nav">NAVIGATION BAR</i>
-
-    <script>
-        let canvas = document.querySelector("canvas#game-canvas");
-        let ctx = canvas.getContext("2d");
-
-        let width = document.querySelector("main").clientWidth;
-        let height = document.querySelector("main").clientHeight;
-
-        canvas.width = width;
-        canvas.height = height;
-
-        gamePageInit();
-    </script>
 </body>
 
 </html>

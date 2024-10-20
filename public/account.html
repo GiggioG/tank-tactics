@@ -11,8 +11,31 @@
     <script src="./js/modals.js"></script>
     <script src="./js/accountPage.js"></script>
 
-    <script async src="./includes/nav.js"></script>
-    <script async src="./js/includes.js"></script>
+    <script defer src="./includes/nav.js"></script>
+    <script defer src="./js/includes.js"></script>
+    <script defer>
+        (async () => {
+            await getLoggedInUser();
+            await getGameState();
+
+            let main = document.querySelector("main");
+            let loggedInTemplate = document.querySelector("template#loggedIn");
+            let notLoggedInTemplate = document.querySelector("template#notLoggedIn");
+
+            if (loggedInUname == null) {
+                main.replaceChildren(notLoggedInTemplate.content);
+                main.classList.add("notLoggedIn");
+            } else {
+                main.replaceChildren(loggedInTemplate.content);
+                main.classList.add("loggedIn");
+                main.querySelector("span.username").innerText = loggedInUname;
+            }
+            if (gameState != "registration") {
+                Array.from(main.querySelectorAll(".onlyRegistration")).forEach(e => e.remove());
+            }
+            setupListeners();
+        })();
+    </script>
 </head>
 
 <body>
@@ -64,29 +87,6 @@
         </div>
     </div>
 
-    <script>
-        (async () => {
-            await getLoggedInUser();
-            await getGameState();
-
-            let main = document.querySelector("main");
-            let loggedInTemplate = document.querySelector("template#loggedIn");
-            let notLoggedInTemplate = document.querySelector("template#notLoggedIn");
-
-            if (loggedInUname == null) {
-                main.replaceChildren(notLoggedInTemplate.content);
-                main.classList.add("notLoggedIn");
-            } else {
-                main.replaceChildren(loggedInTemplate.content);
-                main.classList.add("loggedIn");
-                main.querySelector("span.username").innerText = loggedInUname;
-            }
-            if (gameState != "registration") {
-                Array.from(main.querySelectorAll(".onlyRegistration")).forEach(e => e.remove());
-            }
-            setupListeners();
-        })();
-    </script>
 </body>
 
 </html>

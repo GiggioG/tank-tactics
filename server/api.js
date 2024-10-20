@@ -16,14 +16,14 @@ const getUTCDateAfterMilis = milis => new Date(Number(new Date()) + milis);
 const getYesterday = () => new Date(Number(new Date) - 24 * 60 * 60 * 1000);
 
 function list_users() {
-    let list = Object.keys(db.accounts);
-    if(db.gameState != "registration"){
-        list = list.map(e => ({name: e, hp: Game.instance.players[e].hp}) );
-    }
+    let list = Object.keys(db.accounts).map(e => ({
+        name: e,
+        hp: (db.status != "registration" ? Game.instance.players[e].hp : 1)
+    }));
     return { status: 200, data: JSON.stringify(list) };
 }
 
-function _createSession(uname){
+function _createSession(uname) {
     let session = genUuid();
     let expires = getUTCDateAfterMilis(COOKIE_EXPIRY);
     db.sessions[session] = { uname, expires: Number(expires) };
@@ -32,7 +32,7 @@ function _createSession(uname){
 }
 
 function register(query, cookies) {
-    if(getSessionUser(cookies)){
+    if (getSessionUser(cookies)) {
         return { status: 400, data: "You can't register when you're logged in." };
     }
 
@@ -46,7 +46,7 @@ function register(query, cookies) {
         return { status: 400, data: "Username doesn't match requirements." };
     }
     /// check availability
-    if(db.accounts[uname]){
+    if (db.accounts[uname]) {
         return { status: 400, data: "Username is taken." }
     }
     /// validate passwd
@@ -65,7 +65,7 @@ function register(query, cookies) {
 }
 
 function login(query, cookies) {
-    if(getSessionUser(cookies)){
+    if (getSessionUser(cookies)) {
         return { status: 400, data: "You have already logged in." };
     }
 
@@ -104,9 +104,9 @@ function whoami(query, cookies) {
     return { status: 200, data: JSON.stringify(user) };
 }
 
-function unregister(query, cookies){
+function unregister(query, cookies) {
     let user = getSessionUser(cookies);
-    if(!user){
+    if (!user) {
         return { status: 401, data: "Not logged in" };
     }
     delete db.accounts[user];
@@ -114,8 +114,8 @@ function unregister(query, cookies){
     return { status: 200, data: "Unregistered.", setCookies: [`session=null; expires=${getYesterday().toUTCString()}; path=/`] }
 }
 
-function getGameStatus(query, cookies){
-    return {status: 200, data: db.status};
+function getGameStatus(query, cookies) {
+    return { status: 200, data: db.status };
 }
 
 /**
@@ -141,11 +141,11 @@ export default function api_endpoint(parsed, req, res) {
         ({ status, data, setCookies } = logout(query, cookies));
     } else if (endpoint == "whoami" && req.method == "GET") {
         ({ status, data, setCookies } = whoami(query, cookies));
-    } else if(endpoint == "unregister" && req.method == "DELETE" && db.status == "registration"){
+    } else if (endpoint == "unregister" && req.method == "DELETE" && db.status == "registration") {
         ({ status, data, setCookies } = unregister(query, cookies));
-    } else if(endpoint == "getGameState" && req.method == "GET"){
-        ({status, data, setCookies} = getGameStatus(query, cookies));
-    }else {
+    } else if (endpoint == "getGameState" && req.method == "GET") {
+        ({ status, data, setCookies } = getGameStatus(query, cookies));
+    } else {
         status = 404;
         data = "Error 404: Not found.";
     }

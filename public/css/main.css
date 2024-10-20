@@ -10,7 +10,7 @@
 /* TODO: add global font for whole project so it doesnt look like *crap* */
 
 main {
-    height: calc(100vh - var(--nav-height));
+    height: calc(100dvh - var(--nav-height));
     overflow: scroll;
     color: var(--text-col);
     background-color: var(--bkg-col);
@@ -98,5 +98,4 @@ li.playerList-dead {
 
 li.playerList-dead::before {
     content: "💀";
-    color: red;
 }

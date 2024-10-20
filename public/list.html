@@ -8,17 +8,9 @@
     <link rel="stylesheet" href="./css/main.css">
     <script src="./js/api_util.js"></script>
 
-    <script async src="./includes/nav.js"></script>
-    <script async src="./js/includes.js"></script>
-</head>
-
-<body>
-    <main>
-        <h2>User list</h2>
-        <ul id="userlist"></ul>
-    </main>
-    <i class="incl" data-incl="nav">NAVIGATION BAR</i>
-    <script>
+    <script defer src="./includes/nav.js"></script>
+    <script defer src="./js/includes.js"></script>
+    <script defer>
         (async () => {
             const list = await (await fetch(`${location.origin}/api/list_users`)).json();
             const ul = document.querySelector("ul#userlist");
@@ -41,6 +33,14 @@
             });
         })();
     </script>
+</head>
+
+<body>
+    <main>
+        <h2>User list</h2>
+        <ul id="userlist"></ul>
+    </main>
+    <i class="incl" data-incl="nav">NAVIGATION BAR</i>
 </body>
 
 </html>
