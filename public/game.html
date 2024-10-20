@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tank Tactics</title>
     <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/gameGrid.css">
     <script src="./js/api_util.js"></script>
     <script src="./js/gamePage.js" type="module"></script>
 
@@ -15,22 +16,14 @@
         import {gamePageInit} from "./js/gamePage.js";
         (async () => {
             await getLoggedInUser();
-            let canvas = document.querySelector("canvas#game-canvas");
-            let ctx = canvas.getContext("2d");
-
-            let {width, height} = document.querySelector("main").getBoundingClientRect();
-
-            canvas.width = width;
-            canvas.height = height;
-
-            gamePageInit(ctx, width, height);
+            gamePageInit(document.querySelector("div#canvasGrid"));
         })();
     </script>
 </head>
 
 <body>
     <main>
-        <canvas id="game-canvas"></canvas>
+        <div id="canvasGrid" class="canvas-grid"></div>
     </main>
     <i class="incl" data-incl="nav">NAVIGATION BAR</i>
 </body>

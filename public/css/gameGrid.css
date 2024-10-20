@@ -1,0 +1,21 @@
+/* main {
+    display: block;
+} */
+
+div.canvas-grid{
+    /* inject with javascript --dim and --square-side */
+    width: calc(var(--dim) * var(--square-side));
+    height: calc(var(--dim) * var(--square-side));
+    display: grid;
+    background: linear-gradient(70deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+    grid-template-rows: repeat(var(--dim), 1fr);
+    grid-template-columns: repeat(var(--dim), 1fr);
+}
+
+div.canvas-grid div.grid-square{
+    border: 1px solid white;
+}
+
+main{
+    display: block;
+}
