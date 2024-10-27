@@ -11,8 +11,9 @@ let dim = null;
 let currState = null;
 
 function setup(){
+    let dim = 7;
     canvasGrid.style.setProperty("--dim", dim);
-    canvasGrid.style.setProperty("--square-side", "50px");
+    canvasGrid.style.setProperty("--square-side", "60px"); /// TODO
 
     for(let r = 0; r < dim; r++){
         for(let c = 0; c < dim; c++){
@@ -25,17 +26,23 @@ function setup(){
             canvasGrid.appendChild(small);
 
             if(currState.grid[r][c] != null){
-                small.appendChild(getPlayerTank(currState.players[currState.grid[r][c]]));
+                small.appendChild(playetToTankDiv(currState.players[currState.grid[r][c]]));
             }
         }
     }
 }
 
-function getPlayerTank(player){
+function playetToTankDiv(player){
     let div = document.createElement("div");
+    div.classList.add("player-div");
+    div.id = `playerDiv_${player.name}`;
     div.innerHTML = `
-        <p style="text-align: center;">${player.name}</p>
-        
+        <div class="player-name">${/*player.name*/"_mariika.com_"}</div>
+        <div class="player-stats">
+            <div class="player-health">${player.hp}0</div>
+            <div class="player-ap">${player.ap}0</div>
+            <div class="player-range">${player.range}0</div>
+        </div>
     `;
     return div;    
 }

@@ -1,21 +1,62 @@
-/* main {
-    display: block;
-} */
+:root {
+    --player-border-width: 3px;
+    --player-border: darkgreen;
+    --player-background: black;
 
-div.canvas-grid{
+    --health-stat-color: red;
+    --range-stat-color: orange;
+    --ap-stat-color: lime;
+}
+
+div.canvas-grid {
     /* inject with javascript --dim and --square-side */
     width: calc(var(--dim) * var(--square-side));
     height: calc(var(--dim) * var(--square-side));
     display: grid;
-    background: linear-gradient(70deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+    background: linear-gradient(70deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
     grid-template-rows: repeat(var(--dim), 1fr);
     grid-template-columns: repeat(var(--dim), 1fr);
 }
 
-div.canvas-grid div.grid-square{
-    border: 1px solid white;
+div.canvas-grid div.grid-square {
+    border: 1px solid rgb(255, 255, 255, 0.25);
+    width: calc(var(--square-side) - 2*1px);
+    height: calc(var(--square-side) - 2*1px);
 }
 
-main{
+main {
     display: block;
+}
+
+div.player-div {
+    height: calc(100% - 2*var(--player-border-width));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    background: var(--player-background);
+    border: var(--player-border-width) solid var(--player-border);
+    border-radius: 20%;
+}
+
+div.player-name {
+    text-align: center;
+}
+
+div.player-stats {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    font-size: small;
+}
+
+div.player-health {
+    color: var(--health-stat-color);
+}
+
+div.player-ap {
+    color: var(--ap-stat-color);
+}
+
+div.player-range {
+    color: var(--range-stat-color);
 }
