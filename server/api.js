@@ -7,7 +7,7 @@ import { saveDB } from "./db.js";
 import { getSessionUser, parseCookies } from "./cookies.js";
 import Game from "./game.js";
 
-const COOKIE_EXPIRY = 5 * 60 * 1000;/// millis // TODO
+const COOKIE_EXPIRY = 500 * 60 * 1000;/// millis // TODO
 
 const getHash = e => crypto.createHash("sha256").update(e).digest("base64");
 const genUuid = () => crypto.randomUUID();

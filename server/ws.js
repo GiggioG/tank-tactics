@@ -28,12 +28,28 @@ function broadcast(msg){
     }
 }
 
+export function giveOutApAndBroadcastResults(){
+    let attempt = Game.instance.giveOutAP();
+    if(attempt.success){
+        db.gameState = Game.instance.serialise();
+        saveDB();
+        const sendObj = {
+            type: "updates",
+            updates: attempt.result
+        };
+        broadcast(sendObj);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /**
  * @param {ws.WebSocket} sock
  * @param {https.IncomingMessage} req
  * @returns {void}
  */
-export default function ws_handler(sock, req) {
+export function ws_handler(sock, req) {
     sock.uuid = genUuid();
     socks[sock.uuid] = sock;
     let cookies = parseCookies(req.headers.cookie);

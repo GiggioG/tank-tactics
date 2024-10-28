@@ -9,7 +9,7 @@ import Coord from "../lib/coord.js"
 import Grid from "../lib/grid.js"
 import public_endpoint from "./public_endpoint.js";
 import api_endpoint from "./api.js";
-import ws_handler from "./ws.js"
+import {ws_handler, giveOutApAndBroadcastResults} from "./ws.js"
 
 initDB();
 
@@ -59,6 +59,8 @@ if(db.status != "registration"){
     }
 }
 
+setInterval(giveOutApAndBroadcastResults, 1000*60*5);giveOutApAndBroadcastResults(); /// TODO: temporary
+
 // TODO
 // setInterval(Game.instance.giveOutAP, 24*60*60*1000);
 // setInterval(saveDB, 2 * 60 * 1000);
@@ -66,3 +68,6 @@ if(db.status != "registration"){
 
 // TODO
 // result for giving out ap should be broadcast
+
+/// TODO
+/// remember when ap was last given out in order to give out appropriately for missed givings

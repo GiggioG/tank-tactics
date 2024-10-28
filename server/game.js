@@ -202,7 +202,7 @@ export default class Game {
     _upgrade(agent, amount) {
         this.players[agent].ap -= amount * 2;
         this.players[agent].range += amount;
-        return [...this._changes(agent), ["ap", "range"]];
+        return [...this._changes(agent, ["ap", "range"])];
     }
     tryUpgrade(agent, amount) {
         if (this.players[agent].hp <= 0) return FAIL("You're dead.");
@@ -226,13 +226,15 @@ export default class Game {
     _giveOutVoteAP() {
         let changedUsers = { vote: new Set(), ap: new Set() };
         let counts = {};
-        for (uname in this.players) { counts[uname] = 0 }
-        this.players.filter(p => (p.hp <= 0 && p.vote != null)).forEach(p => {
+        for (const uname in this.players) { counts[uname] = 0; }
+        for(const uname in this.players){
+            const p = this.players[uname];
+            if(p.hp > 0 || p.vote == null){ continue; }
             counts[p.vote]++;
             this.players[p.name].vote = null;
             changedUsers.vote.add(p.name);
-        });
-        for (uname in counts) {
+        }
+        for (const uname in counts) {
             if (counts[uname] >= 3) {
                 this.players[uname].ap++;
                 changedUsers.ap.add(uname);
@@ -242,7 +244,7 @@ export default class Game {
     }
     giveOutAP() {
         let changedUsers = this._giveOutVoteAP();
-        for (uname in this.players) {
+        for (const uname in this.players) {
             if (this.players[uname].hp > 0) {
                 this.players[uname].ap++;
                 changedUsers.ap.add(uname);

@@ -1,0 +1,13 @@
+.clickedSquareUi {
+    position: fixed;
+    display: none;
+    width: max-content;
+    background-color: rgba(100, 100, 255, 0.5);
+    border-radius: 5px;
+    border: 1px solid white;
+    color: rgb(128, 0, 0, 1);
+}
+
+button:disabled {
+    display: none;
+}
