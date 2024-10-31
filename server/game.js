@@ -256,9 +256,10 @@ export default class Game {
                 changedUsers.ap.add(uname);
             }
         }
+
         let changes = [
-            ...Array.from(changedUsers.vote).map(e => this._changes(e, ["vote"])),
-            ...Array.from(changedUsers.ap).map(e => this._changes(e, ["ap"]))
+            ...Array.from(changedUsers.vote).map(e => this._changes(e, ["vote"]).reduce((a, b)=>[...a, ...b], [])),
+            ...Array.from(changedUsers.ap).map(e => this._changes(e, ["ap"])).reduce((a, b)=>[...a, ...b], [])
         ];
         return SUCCEED(changes, `AP was given out and votes were reset`);
     }

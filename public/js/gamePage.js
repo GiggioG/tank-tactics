@@ -66,9 +66,13 @@ function setup() { /// drawing setup, name borrowed from p5.js
         avgC /= aliveCount
         centerCoordinates(new Coord(Math.round(avgR), Math.round(avgC)));
     }
+
+    document.querySelector("button#modalAttackButton").addEventListener("click", attackModalSubmitted);
+    document.querySelector("button#modalGiveButton").addEventListener("click", giveModalSubmitted);
+    document.querySelector("button#modalUpgradeButton").addEventListener("click", upgradeModalSubmitted);
 }
 
-function drawPlayer(p) {
+function drawPlayer(p) { /// TODO: draw a crown on the winner post-game
     let x = originX + p.pos.c * squareSide, y = originY + p.pos.r * squareSide;
 
     ctx.fillStyle = "darkgreen"; ///colors
@@ -90,7 +94,13 @@ function drawPlayer(p) {
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     ctx.fillStyle = "white"; ///colors
-    ctx.fillText(p.name, middle, top + MARGIN, innerWidth);
+    let name = p.name;
+    if(gameState == "post-game" && currState.winner == p.name){
+        ctx.lineWidth = 2;
+        ctx.fillStyle = "yellow";
+        name = `👑${p.name}👑`;
+    }
+    ctx.fillText(name, middle, top + MARGIN, innerWidth);
 
     ctx.textBaseline = "bottom";
 
@@ -172,7 +182,7 @@ function draw() {
 
         ctx.strokeStyle = "maroon"; ///colors
         ctx.lineWidth = 2;
-        ctx.fillStyle = "rgb(128, 0, 0, 0.2)"; ///colors (orange, only with opacity)
+        ctx.fillStyle = "rgb(128, 0, 0, 0.2)"; ///colors (maroon, only with opacity)
         ctx.beginPath();
         ctx.rect(
             originX + (playerPos.c - playerRange) * squareSide,
@@ -222,7 +232,7 @@ function handleClick(cx, cy) {
     } else {
         selectedSquare = pos;
 
-        if (loggedInUname && currState.players[loggedInUname].hp > 0) {
+        if (loggedInUname && currState.players[loggedInUname].hp > 0 && gameState == "in-game") {
             const selSqOccupied = (currState.grid[selectedSquare] != null);
             const selSqIsMe = (currState.grid[selectedSquare] == loggedInUname);
             const selSqIsOtherPlayer = (selSqOccupied && currState.grid[selectedSquare] != loggedInUname);
@@ -329,24 +339,65 @@ function parseMessage({ data }) {
     draw();
 }
 
-function attackButtonPressed(askAmount = false) {
-    let amount = 1;
-    if (askAmount) { amount = Number(prompt("Amount?")); } /// TODO: normal modal for attack, give, upgrade
+function attackModalSubmitted(){
+    const amount = Number(getActiveModalBkg().querySelector("input.amount").value);
     ws.send(JSON.stringify({
         "type": "attack",
         "patient": currState.grid[selectedSquare],
         "amount": amount
     }));
+    closeModal();
 }
 
-function giveButtonPressed(askAmount = false) {
-    let amount = 1;
-    if (askAmount) { amount = Number(prompt("Amount?")); }
+function giveModalSubmitted(){
+    const amount = Number(getActiveModalBkg().querySelector("input.amount").value);
     ws.send(JSON.stringify({
         "type": "give",
         "patient": currState.grid[selectedSquare],
         "amount": amount
     }));
+    closeModal();
+}
+
+function upgradeModalSubmitted(){
+    const amount = Number(getActiveModalBkg().querySelector("input.amount").value);
+    ws.send(JSON.stringify({
+        "type": "upgrade",
+        "amount": amount
+    }));
+    closeModal();
+}
+
+function attackButtonPressed(askAmount = false) {
+    const maxAmount = currState.players[loggedInUname].ap;
+    if(maxAmount < 0){ return; }
+    if(!askAmount){
+        ws.send(JSON.stringify({
+            "type": "attack",
+            "patient": currState.grid[selectedSquare],
+            "amount": 1
+        }));
+        return;
+    }
+    const modalBkg = document.querySelector("div.modalBkg#attackModalBkg");
+    modalBkg.querySelector("input.amount").max = maxAmount;
+    openModal(modalBkg);
+}
+
+function giveButtonPressed(askAmount = false) {
+    const maxAmount = currState.players[loggedInUname].ap;
+    if(maxAmount < 0){ return; }
+    if(!askAmount){
+        ws.send(JSON.stringify({
+            "type": "give",
+            "patient": currState.grid[selectedSquare],
+            "amount": 1
+        }));
+        return;
+    }
+    const modalBkg = document.querySelector("div.modalBkg#giveModalBkg");
+    modalBkg.querySelector("input.amount").max = maxAmount;
+    openModal(modalBkg);
 }
 
 function moveButtonPressed() {
@@ -357,15 +408,20 @@ function moveButtonPressed() {
 }
 
 function upgradeButtonPressed(askAmount = false) {
-    let amount = 1;
-    if (askAmount) { amount = Number(prompt("Amount?")); }
-    ws.send(JSON.stringify({
-        type: "upgrade",
-        amount: amount
-    }));
+    const maxAmount = Math.floor(currState.players[loggedInUname].ap/2);
+    if(maxAmount < 0){ return; }
+    if(!askAmount){
+        ws.send(JSON.stringify({
+            "type": "upgrade",
+            "amount": 1
+        }));
+        return;
+    }
+    const modalBkg = document.querySelector("div.modalBkg#upgradeModalBkg");
+    modalBkg.querySelector("input.amount").max = maxAmount;
+    openModal(modalBkg);
 }
 
-/// TODO: ui for when you are dead
 /// TODO: ui for when the game is ended.
 
 function addSingleAndDblClickListener(element, clickListener, dblClickListener) {
@@ -384,7 +440,7 @@ function addSingleAndDblClickListener(element, clickListener, dblClickListener) 
                 clickListener();
             }
             element.removeEventListener("click", func)
-        }, 200);
+        }, 250);
     });
 }
 

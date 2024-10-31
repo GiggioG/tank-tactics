@@ -59,7 +59,7 @@ if (db.status != "registration") {
     }
 }
 
-setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 5); giveOutApAndBroadcastResults(); /// TODO: temporary time
+setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 0.5); giveOutApAndBroadcastResults(); /// TODO: temporary time
 
 // TODO
 // setInterval(Game.instance.giveOutAP, 24*60*60*1000);
