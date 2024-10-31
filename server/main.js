@@ -5,11 +5,11 @@ import * as path from "path";
 import * as ws from "ws";
 import { initDB, saveDB, clearExpiredSessions } from "./db.js";
 import Game from "./game.js";
-import Coord from "../lib/coord.js"
+import { Coord } from "../lib/coord.js"
 import Grid from "../lib/grid.js"
 import public_endpoint from "./public_endpoint.js";
 import api_endpoint from "./api.js";
-import {ws_handler, giveOutApAndBroadcastResults} from "./ws.js"
+import { ws_handler, giveOutApAndBroadcastResults } from "./ws.js"
 
 initDB();
 
@@ -34,9 +34,9 @@ let webSocketServer = new ws.WebSocketServer({
     path: "/api/ws"
 });
 webSocketServer.on("connection", ws_handler);
-webSocketServer.shouldHandle = function(req) {
-    if(db.status == "registration"){ return false; }
-    
+webSocketServer.shouldHandle = function (req) {
+    if (db.status == "registration") { return false; }
+
     /// from default shouldHandle function
     if (this.options.path) {
         const index = req.url.indexOf('?');
@@ -49,17 +49,17 @@ webSocketServer.shouldHandle = function(req) {
 }
 
 // main
-if(db.status != "registration"){
-    if(db.gameState == null){
+if (db.status != "registration") {
+    if (db.gameState == null) {
         Game.instance = new Game(Object.keys(db.accounts));
         db.gameState = Game.instance.serialise();
         saveDB();
-    }else{
+    } else {
         Game.instance = Game.deserialise(db.gameState);
     }
 }
 
-setInterval(giveOutApAndBroadcastResults, 1000*60*5);giveOutApAndBroadcastResults(); /// TODO: temporary
+setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 5); giveOutApAndBroadcastResults(); /// TODO: temporary
 
 // TODO
 // setInterval(Game.instance.giveOutAP, 24*60*60*1000);

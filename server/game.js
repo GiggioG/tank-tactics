@@ -1,8 +1,7 @@
 import { appendFileSync } from "fs";
 import Queue from "../lib/queue.js";
-import Coord from "../lib/coord.js";
+import {Coord, crd} from "../lib/coord.js";
 const { ringDist } = Coord;
-const crd = function () { return new Coord(...arguments) };
 import Grid from "../lib/grid.js";
 import { shuffleArray, humanTimestamp } from "../lib/util.js";
 
@@ -65,7 +64,7 @@ export default class Game {
         ret.players = obj.players;
         ret.grid = Grid.deserialise(obj.grid);
         Object.keys(ret.players).forEach(p => {
-            let pos = crd(ret.players[p].pos.r, ret.players[p].pos.c);
+            let pos = crd(ret.players[p].pos);
             ret.players[p].pos = pos;
         });
         return ret;
@@ -160,22 +159,26 @@ export default class Game {
     _attack(agent, patient, amount) {
         this.players[agent].ap -= amount;
         this.players[patient].hp -= amount;
+        let killChanges = [];
         if (this.players[patient].hp <= 0) {
-            // this.players[agent].ap += this.players[patient].ap;
             this.alivePlayers--;
-            for (uname in this.players) {
+            for (const uname in this.players) {
                 if(this.players[uname].vote == patient){ this.players[uname].vote = null; }
             }
+            this.grid[this.players[patient].pos] = null;
+            this.players[patient].pos = null;
+            killChanges = this._changes(patient, ["pos"]);
             if (this.alivePlayers == 1) {
                 this._win(agent);
             }
         }
-        return [...this.changes(agent, ["ap"]), ...this._changes(patient, ["hp", "ap"])];
-        // return [...this.changes(agent, ["ap"]), ...this._changes(patient, ["hp"])];
+        return [...this._changes(agent, ["ap"]), ...this._changes(patient, ["hp"]), ...killChanges];
     }
     tryAttack(agent, patient, amount) {
         if (this.players[agent].hp <= 0) return FAIL("You're dead.");
         if (!this.players[patient]) return FAIL("That player doesn't exist.");
+        if(this.players[patient].hp <= 0) return FAIL("This player is already dead.");
+        if (amount <= 0) return FAIL("You need to deal a positive amount of damage.");
         if (amount > this.players[agent].ap) return FAIL("Not enough AP to attack that much.");
         if (ringDist(this.players[agent].pos, this.players[patient].pos) > this.players[agent].range)
             return FAIL("Player is out of your range.");
@@ -193,6 +196,8 @@ export default class Game {
     tryGive(agent, patient, amount) {
         if (this.players[agent].hp <= 0) return FAIL("You're dead.");
         if (!this.players[patient]) return FAIL("That player doesn't exist.");
+        if(this.players[patient].hp <= 0) return FAIL("This player is dead.");
+        if (amount <= 0) return FAIL("You need to give a positive amount of AP.");
         if (amount > this.players[agent].ap) return FAIL("Not enough AP to give that much.");
         if (ringDist(this.players[agent].pos, this.players[patient].pos) > this.players[agent].range)
             return FAIL("Player is out of your range.");
@@ -206,6 +211,7 @@ export default class Game {
     }
     tryUpgrade(agent, amount) {
         if (this.players[agent].hp <= 0) return FAIL("You're dead.");
+        if (amount <= 0) return FAIL("Upgrade amount must be positive.");
         if (amount * 2 > this.players[agent].ap) return FAIL("Not enough AP to upgrade your range that much.");
         let changes = this._upgrade(agent, amount);
         return SUCCEED(changes, `${agent} upgraded their range by ${amount}`);

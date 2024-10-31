@@ -1,4 +1,4 @@
-import Coord from "../../lib/coord.js";
+import { Coord, crd } from "../../lib/coord.js";
 import Grid from "../../lib/grid.js";
 
 let ws = null;
@@ -49,11 +49,10 @@ function setup() { /// drawing setup, name borrowed from p5.js
     gridSide = squareSide * dim;
 
     if (loggedInUname) {
-        /// TODO
         let playerPos = currState.players[loggedInUname].pos;
         centerCoordinates(playerPos);
 
-        distsFromPlayer = currState.grid.getDistsFromPos(playerPos); /// TODO: update when someone moves
+        distsFromPlayer = currState.grid.getDistsFromPos(playerPos);
     } else {
         centerCoordinates(new Coord(Math.floor(dim / 2), Math.floor(dim / 2)));
     }
@@ -62,7 +61,7 @@ function setup() { /// drawing setup, name borrowed from p5.js
 function drawPlayer(p) {
     let x = originX + p.pos.c * squareSide, y = originY + p.pos.r * squareSide;
 
-    ctx.fillStyle = "darkgreen"; /// colors
+    ctx.fillStyle = "darkgreen"; ///colors
     ctx.fillRect(x, y, squareSide, squareSide);
 
     const BORDER_WIDTH = 3, MARGIN = 5; /// TODO: config
@@ -85,34 +84,34 @@ function drawPlayer(p) {
 
     ctx.textBaseline = "bottom";
 
-    ctx.fillStyle = "red"; /// colors
+    ctx.fillStyle = "red"; ///colors
     ctx.textAlign = "left";
     ctx.fillText(`${p.hp}`, left + MARGIN, bottom - MARGIN, innerWidth);
 
-    ctx.fillStyle = "lime"; /// colors
+    ctx.fillStyle = "lime"; ///colors
     ctx.textAlign = "center";
     ctx.fillText(`${p.ap}`, middle, bottom - MARGIN, innerWidth);
 
-    ctx.fillStyle = "orange"; /// colors
+    ctx.fillStyle = "orange"; ///colors
     ctx.textAlign = "right";
     ctx.fillText(`${p.range}`, right - MARGIN, bottom - MARGIN, innerWidth);
 }
 
 const ui = document.querySelector("div.clickedSquareUi");
 
-function drawSelectedUi(){
-    if(!loggedInUname || selectedSquare == null || ui.style.display == ""){ return; }
+function drawSelectedUi() {
+    if (!loggedInUname || selectedSquare == null || ui.style.display == "") { return; }
 
     const dialogWidth = ui.clientWidth;
     const dialogHeight = ui.clientHeight;
 
-    let x = originX + selectedSquare.c * squareSide + squareSide/2 - dialogWidth/2;
-    if(x < 0){ x = originX + selectedSquare.c * squareSide; }
-    else if(x + dialogWidth >= width){ x = originX + selectedSquare.c * squareSide + squareSide - dialogWidth; }
+    let x = originX + selectedSquare.c * squareSide + squareSide / 2 - dialogWidth / 2;
+    if (x < 0) { x = originX + selectedSquare.c * squareSide; }
+    else if (x + dialogWidth >= width) { x = originX + selectedSquare.c * squareSide + squareSide - dialogWidth; }
     // if(x < 5){ x = 5; }
     // else if(x + dialogWidth >= width-5){ x = width - dialogWidth - 5; }
     let y = originY + selectedSquare.r * squareSide - dialogHeight - 5;
-    if(y <= 0){
+    if (y <= 0) {
         y = originY + selectedSquare.r * squareSide + squareSide + 5;
     }
 
@@ -138,38 +137,38 @@ function draw() {
         ctx.stroke();
     }
 
-    if(loggedInUname){ /// highlight the player's range
+    if (loggedInUname) { /// highlight the player's range
         let playerPos = currState.players[loggedInUname].pos;
         let playerRange = currState.players[loggedInUname].range;
 
-        ctx.strokeStyle = "orange"; /// colors
+        ctx.strokeStyle = "orange"; ///colors
         ctx.lineWidth = 2;
-        ctx.fillStyle = "rgb(255, 165, 0, 0.2)"; /// colors (orange, only with opacity)
+        ctx.fillStyle = "rgb(255, 165, 0, 0.2)"; ///colors (orange, only with opacity)
         ctx.beginPath();
         ctx.rect(
-            originX + (playerPos.c - playerRange) * squareSide, 
-            originY + (playerPos.r - playerRange)*squareSide,
-            squareSide * (playerRange*2 + 1),
-            squareSide * (playerRange*2 + 1)
+            originX + (playerPos.c - playerRange) * squareSide,
+            originY + (playerPos.r - playerRange) * squareSide,
+            squareSide * (playerRange * 2 + 1),
+            squareSide * (playerRange * 2 + 1)
         );
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
     }
     /// highlight the selected player's range
-    if(selectedSquare && currState.grid[selectedSquare] != null && currState.grid[selectedSquare] != loggedInUname){
+    if (selectedSquare && currState.grid[selectedSquare] != null && currState.grid[selectedSquare] != loggedInUname) {
         let playerPos = currState.players[currState.grid[selectedSquare]].pos;
         let playerRange = currState.players[currState.grid[selectedSquare]].range;
 
-        ctx.strokeStyle = "maroon"; /// colors
+        ctx.strokeStyle = "maroon"; ///colors
         ctx.lineWidth = 2;
-        ctx.fillStyle = "rgb(128, 0, 0, 0.2)"; /// colors (orange, only with opacity)
+        ctx.fillStyle = "rgb(128, 0, 0, 0.2)"; ///colors (orange, only with opacity)
         ctx.beginPath();
         ctx.rect(
-            originX + (playerPos.c - playerRange) * squareSide, 
-            originY + (playerPos.r - playerRange)*squareSide,
-            squareSide * (playerRange*2 + 1),
-            squareSide * (playerRange*2 + 1)
+            originX + (playerPos.c - playerRange) * squareSide,
+            originY + (playerPos.r - playerRange) * squareSide,
+            squareSide * (playerRange * 2 + 1),
+            squareSide * (playerRange * 2 + 1)
         );
         ctx.stroke();
         ctx.fill();
@@ -179,9 +178,9 @@ function draw() {
     for (let r = 0; r < dim; r++) {
         for (let c = 0; c < dim; c++) {
             let x = originX + c * squareSide, y = originY + r * squareSide;
-            if(loggedInUname){
+            if (loggedInUname) {
                 /// highlight reachable
-                if((distsFromPlayer[r][c] <= currState.players[loggedInUname].ap)){
+                if ((distsFromPlayer[r][c] <= currState.players[loggedInUname].ap)) {
                     ctx.fillStyle = "rgb(0, 0, 255, 0.3)";///colors
                     ctx.fillRect(x, y, squareSide, squareSide);
                 }
@@ -189,7 +188,9 @@ function draw() {
 
             if (currState.grid[r][c] != null) {
                 const p = currState.players[currState.grid[r][c]];
-                drawPlayer(p);
+                if (p.hp > 0) {
+                    drawPlayer(p);
+                }
             }
             if (selectedSquare != null && selectedSquare.r == r && selectedSquare.c == c) {
                 ctx.strokeStyle = "yellow";///colors
@@ -211,7 +212,7 @@ function handleClick(cx, cy) {
     } else {
         selectedSquare = pos;
 
-        if(loggedInUname){
+        if (loggedInUname) {
             const selSqOccupied = (currState.grid[selectedSquare] != null);
             const selSqIsMe = (currState.grid[selectedSquare] == loggedInUname);
             const selSqIsOtherPlayer = (selSqOccupied && currState.grid[selectedSquare] != loggedInUname);
@@ -219,11 +220,11 @@ function handleClick(cx, cy) {
             const selSqReachable = (distsFromPlayer[selectedSquare] <= currState.players[loggedInUname].ap);
 
             let allDisabled = true;
-            allDisabled &= ui.querySelector("button#moveButton").disabled = !( selSqReachable && !selSqOccupied );
-            allDisabled &= ui.querySelector("button#attackButton").disabled = !( selSqInRange && selSqIsOtherPlayer );
-            allDisabled &= ui.querySelector("button#giveButton").disabled = !( selSqInRange && selSqIsOtherPlayer );
-            allDisabled &= ui.querySelector("button#upgradeButton").disabled = !( selSqIsMe );
-            ui.style.display = (allDisabled?"":"block");
+            allDisabled &= ui.querySelector("button#moveButton").disabled = !(selSqReachable && !selSqOccupied);
+            allDisabled &= ui.querySelector("button#attackButton").disabled = !(selSqInRange && selSqIsOtherPlayer);
+            allDisabled &= ui.querySelector("button#giveButton").disabled = !(selSqInRange && selSqIsOtherPlayer);
+            allDisabled &= ui.querySelector("button#upgradeButton").disabled = !(selSqIsMe);
+            ui.style.display = (allDisabled ? "" : "block");
         }
     }
 
@@ -288,22 +289,37 @@ function parseMessage({ data }) {
         currState = JSON.parse(msg.state);
         for (const p in currState.players) {
             const oldPos = currState.players[p].pos;
-            currState.players[p].pos = new Coord(oldPos.r, oldPos.c);
+            currState.players[p].pos = crd(oldPos);
         }
         currState.grid = Grid.deserialise(currState.grid);
         dim = currState.dim;
         console.log(currState);
         setup();
     } else if (msg.type == "updates") {
-        /// TODO: actual implementation
-        location.reload();
+        msg.updates.forEach(u => {
+            if(u.stat == "pos"){
+                currState.grid[currState.players[u.player].pos] = null;
+                if(u.val == null){
+                    currState.players[u.player].pos = null;
+                }else{
+                    const newCoord = crd(u.val);
+                    currState.players[u.player].pos = newCoord;
+                    currState.grid[newCoord] = u.player;
+                }
+                if(loggedInUname != null){
+                    distsFromPlayer = currState.grid.getDistsFromPos(currState.players[loggedInUname].pos);
+                }
+            }else{
+                currState.players[u.player][u.stat] = u.val;
+            }
+        });
     }
     draw();
 }
 
-function attackButtonPressed(askAmount=false){
+function attackButtonPressed(askAmount = false) {
     let amount = 1;
-    if(askAmount){ amount = Number(prompt("Amount?")); } /// TODO: normal modal for attack, give, upgrade
+    if (askAmount) { amount = Number(prompt("Amount?")); } /// TODO: normal modal for attack, give, upgrade
     ws.send(JSON.stringify({
         "type": "attack",
         "patient": currState.grid[selectedSquare],
@@ -311,9 +327,9 @@ function attackButtonPressed(askAmount=false){
     }));
 }
 
-function giveButtonPressed(askAmount=false){
+function giveButtonPressed(askAmount = false) {
     let amount = 1;
-    if(askAmount){ amount = Number(prompt("Amount?")); }
+    if (askAmount) { amount = Number(prompt("Amount?")); }
     ws.send(JSON.stringify({
         "type": "give",
         "patient": currState.grid[selectedSquare],
@@ -321,39 +337,38 @@ function giveButtonPressed(askAmount=false){
     }));
 }
 
-function moveButtonPressed(){
+function moveButtonPressed() {
     ws.send(JSON.stringify({
         type: "move",
         coord: selectedSquare.toString()
     }));
 }
 
-function upgradeButtonPressed(askAmount=false){
+function upgradeButtonPressed(askAmount = false) {
     let amount = 1;
-    if(askAmount){ amount = Number(prompt("Amount?")); }
-    alert("amount: " + amount);
-    return;
+    if (askAmount) { amount = Number(prompt("Amount?")); }
     ws.send(JSON.stringify({
         type: "upgrade",
         amount: amount
     }));
 }
 
-/// TODO: ui for when you are dead and for when the game is ended.
+/// TODO: ui for when you are dead
+/// TODO: ui for when the game is ended.
 
-function addSingleAndDblClickListener(element, clickListener, dblClickListener){
-    element.addEventListener("click", ev1=>{
-        if(element.bigListenerDisabled){ return; }
+function addSingleAndDblClickListener(element, clickListener, dblClickListener) {
+    element.addEventListener("click", ev1 => {
+        if (element.bigListenerDisabled) { return; }
         element.clickedAgain = false;
-        let func = ()=>{
+        let func = () => {
             element.clickedAgain = true;
             dblClickListener();
         };
-        element.addEventListener("click", func, {once: true});
+        element.addEventListener("click", func, { once: true });
         element.bigListenerDisabled = true;
-        setTimeout(()=>{
+        setTimeout(() => {
             element.bigListenerDisabled = false;
-            if(!element.clickedAgain){
+            if (!element.clickedAgain) {
                 clickListener();
             }
             element.removeEventListener("click", func)
@@ -361,11 +376,11 @@ function addSingleAndDblClickListener(element, clickListener, dblClickListener){
     });
 }
 
-function addSelectedMenuListeners(){
-    ui.querySelector("button#moveButton").addEventListener("click", ()=>{moveButtonPressed();} );
-    addSingleAndDblClickListener(ui.querySelector("button#attackButton"), ()=>attackButtonPressed(true), ()=>attackButtonPressed(false));
-    addSingleAndDblClickListener(ui.querySelector("button#giveButton"), ()=>giveButtonPressed(true), ()=>giveButtonPressed(false));
-    addSingleAndDblClickListener(ui.querySelector("button#upgradeButton"), ()=>upgradeButtonPressed(true), ()=>upgradeButtonPressed(false));
+function addSelectedMenuListeners() {
+    ui.querySelector("button#moveButton").addEventListener("click", () => { moveButtonPressed(); });
+    addSingleAndDblClickListener(ui.querySelector("button#attackButton"), () => attackButtonPressed(true), () => attackButtonPressed(false));
+    addSingleAndDblClickListener(ui.querySelector("button#giveButton"), () => giveButtonPressed(true), () => giveButtonPressed(false));
+    addSingleAndDblClickListener(ui.querySelector("button#upgradeButton"), () => upgradeButtonPressed(true), () => upgradeButtonPressed(false));
 }
 
 /**
@@ -407,5 +422,7 @@ export async function gamePageInit(_ctx, _width, _height) {
 }
 
 /// TODO: add rulers with excel-like coordinates
+/// TODO: add proper dialog for when an action fails
+/// TODO: server console
 
-/// TODO
+/// TODO: will probably crash if logging in as dead player, fix that
