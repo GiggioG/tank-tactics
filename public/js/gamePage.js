@@ -48,13 +48,23 @@ function setup() { /// drawing setup, name borrowed from p5.js
     squareSide = Math.max(Math.min(width / dim, height / dim), 45);
     gridSide = squareSide * dim;
 
-    if (loggedInUname) {
+    if (loggedInUname && currState.players[loggedInUname].hp > 0) {
         let playerPos = currState.players[loggedInUname].pos;
         centerCoordinates(playerPos);
 
         distsFromPlayer = currState.grid.getDistsFromPos(playerPos);
     } else {
-        centerCoordinates(new Coord(Math.floor(dim / 2), Math.floor(dim / 2)));
+        let avgR = 0, avgC = 0, aliveCount = 0;
+        for (const p in currState.players){
+            if(currState.players[p].pos != null){
+                avgR += currState.players[p].pos.r;
+                avgC += currState.players[p].pos.c;
+                aliveCount++;
+            }
+        }
+        avgR /= aliveCount;
+        avgC /= aliveCount
+        centerCoordinates(new Coord(Math.round(avgR), Math.round(avgC)));
     }
 }
 
@@ -137,7 +147,7 @@ function draw() {
         ctx.stroke();
     }
 
-    if (loggedInUname) { /// highlight the player's range
+    if (loggedInUname && currState.players[loggedInUname].hp > 0) { /// highlight the player's range
         let playerPos = currState.players[loggedInUname].pos;
         let playerRange = currState.players[loggedInUname].range;
 
@@ -178,7 +188,7 @@ function draw() {
     for (let r = 0; r < dim; r++) {
         for (let c = 0; c < dim; c++) {
             let x = originX + c * squareSide, y = originY + r * squareSide;
-            if (loggedInUname) {
+            if (loggedInUname && currState.players[loggedInUname].hp > 0) {
                 /// highlight reachable
                 if ((distsFromPlayer[r][c] <= currState.players[loggedInUname].ap)) {
                     ctx.fillStyle = "rgb(0, 0, 255, 0.3)";///colors
@@ -212,7 +222,7 @@ function handleClick(cx, cy) {
     } else {
         selectedSquare = pos;
 
-        if (loggedInUname) {
+        if (loggedInUname && currState.players[loggedInUname].hp > 0) {
             const selSqOccupied = (currState.grid[selectedSquare] != null);
             const selSqIsMe = (currState.grid[selectedSquare] == loggedInUname);
             const selSqIsOtherPlayer = (selSqOccupied && currState.grid[selectedSquare] != loggedInUname);
@@ -313,6 +323,8 @@ function parseMessage({ data }) {
                 currState.players[u.player][u.stat] = u.val;
             }
         });
+    } else if(msg.type == "winner"){
+        location.href = "/list";
     }
     draw();
 }
@@ -424,5 +436,4 @@ export async function gamePageInit(_ctx, _width, _height) {
 /// TODO: add rulers with excel-like coordinates
 /// TODO: add proper dialog for when an action fails
 /// TODO: server console
-
-/// TODO: will probably crash if logging in as dead player, fix that
+/// TODO: dead player voting ui

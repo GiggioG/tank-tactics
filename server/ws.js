@@ -63,6 +63,7 @@ export function ws_handler(sock, req) {
     sock.on("message", rawMsg => {
         if (!sock.user) { return writeError(sock, "spectators (not logged in users) can't do things."); }
 
+        if(db.status == "post-game"){ return writeError(sock, "The game has already ended."); }
         const msg = JSON.parse(rawMsg);
         let attempt = null;
         if (msg.type == "move") {
@@ -111,7 +112,13 @@ export function ws_handler(sock, req) {
                 if (msg.type == "vote") {
                     return sock.send(JSON.stringify({ sendObj }))
                 }
-                return broadcast(sendObj);
+                broadcast(sendObj);
+                if (Game.instance.gameOver) {
+                    db.status = "post-game";
+                    saveDB();
+                    broadcast({type: "winner"});
+                }
+                return;
             } else {
                 return writeError(sock, attempt.result);
             }

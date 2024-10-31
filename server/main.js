@@ -59,15 +59,14 @@ if (db.status != "registration") {
     }
 }
 
-setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 5); giveOutApAndBroadcastResults(); /// TODO: temporary
+setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 5); giveOutApAndBroadcastResults(); /// TODO: temporary time
 
 // TODO
 // setInterval(Game.instance.giveOutAP, 24*60*60*1000);
 // setInterval(saveDB, 2 * 60 * 1000);
 // setInterval(clearInvalidSessions, 2*60*1000); (invalid: expired or deleted user)
 
-// TODO
-// result for giving out ap should be broadcast
-
 /// TODO
 /// remember when ap was last given out in order to give out appropriately for missed givings
+
+/// TODO api route to start game without 

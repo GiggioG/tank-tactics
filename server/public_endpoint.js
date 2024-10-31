@@ -15,7 +15,7 @@ export default function public_endpoint(parsed, req, res) {
             let defaultPage = {
                 "registration": "account",
                 "in-game": "game",
-                "post-game": "game"
+                "post-game": "list"
             }
             let rediRectPathname = `/${defaultPage[db.status]}.html`;
             res.writeHead(302, "Found", {Location: rediRectPathname});
