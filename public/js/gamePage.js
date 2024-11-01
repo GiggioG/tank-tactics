@@ -24,6 +24,9 @@ const COLOURS = {
 
     reachableSquareFill: "rgb(0, 0, 255, 0.3)",
     selctedSquareBorder: "yellow",
+
+    currentVote: "rgb(100, 100, 255, 0.7)",
+    hasntVoted: "rgb(255, 0, 0, 0.7)"
 }
 
 let ws = null;
@@ -125,6 +128,7 @@ function drawPlayer(p) {
 
     ctx.lineWidth = 1;
     ctx.textAlign = "center";
+    ctx.font = "10px 'Consolas', monospace";
     ctx.textBaseline = "top";
     ctx.fillStyle = COLOURS.normalName;
     let name = p.name;
@@ -253,7 +257,51 @@ function draw() {
         }
     }
 
+    if(gameState == "in-game" && loggedInUname && currState.players[loggedInUname].hp <= 0){
+        let vote = currState.players[loggedInUname].vote;
+        let text;
+        if(vote == null){
+            text = `YOU HAVEN'T VOTED`;
+            ctx.fillStyle = COLOURS.hasntVoted;
+        }else{
+            text = `CURRENT VOTE: ${vote}`;
+            ctx.fillStyle = COLOURS.currentVote;
+        }
+        ctx.lineWidth = 1;
+        ctx.font = "30px 'Consolas', monospace";
+        ctx.textBaseline = "top";
+        ctx.textAlign = "center";
+        ctx.fillText(text, width/2, 5, width);
+    }
+
     drawSelectedUi();
+}
+
+function updateSelectedMenu(){
+    if (selectedSquare && loggedInUname && gameState == "in-game") {
+        const imAlive = (currState.players[loggedInUname].hp > 0);
+        const selSqOccupied = (currState.grid[selectedSquare] != null);
+        const selSqIsMe = (currState.grid[selectedSquare] == loggedInUname);
+        const selSqIsOtherPlayer = (selSqOccupied && currState.grid[selectedSquare] != loggedInUname);
+        const selSqInRange = (imAlive && Coord.ringDist(selectedSquare, currState.players[loggedInUname].pos) <= currState.players[loggedInUname].range);
+        const selSqReachable = (imAlive && distsFromPlayer[selectedSquare] <= currState.players[loggedInUname].ap);
+
+        let allDisabled = true;
+        allDisabled &= ui.querySelector("button#moveButton").disabled = !(selSqReachable && !selSqOccupied && imAlive);
+        allDisabled &= ui.querySelector("button#attackButton").disabled = !(selSqInRange && selSqIsOtherPlayer && imAlive);
+        allDisabled &= ui.querySelector("button#giveButton").disabled = !(selSqInRange && selSqIsOtherPlayer && imAlive);
+        allDisabled &= ui.querySelector("button#upgradeButton").disabled = !(selSqIsMe && imAlive);
+        allDisabled &= ui.querySelector("button#voteButton").disabled = !( selSqIsOtherPlayer && !imAlive );
+        ui.style.display = (allDisabled ? "" : "block");
+
+        if(!ui.querySelector("button#voteButton").disabled){
+            if(currState.players[loggedInUname].vote == currState.grid[selectedSquare]){
+                ui.querySelector("button#voteButton").innerHTML = "❎";
+            }else{
+                ui.querySelector("button#voteButton").innerHTML = "✅";
+            }
+        }
+    }
 }
 
 function handleClick(cx, cy) {
@@ -261,27 +309,10 @@ function handleClick(cx, cy) {
     let pos = new Coord(Math.floor(y / squareSide), Math.floor(x / squareSide));
 
     if (selectedSquare != null && selectedSquare.equals(pos)) {
-        if(currState.grid[selectedSquare] != null){ /// TODO: actual interface
-            ws.send(JSON.stringify({type: "vote", patient: currState.grid[selectedSquare]}));
-        }
         selectedSquare = null;
     } else {
         selectedSquare = pos;
-
-        if (loggedInUname && currState.players[loggedInUname].hp > 0 && gameState == "in-game") {
-            const selSqOccupied = (currState.grid[selectedSquare] != null);
-            const selSqIsMe = (currState.grid[selectedSquare] == loggedInUname);
-            const selSqIsOtherPlayer = (selSqOccupied && currState.grid[selectedSquare] != loggedInUname);
-            const selSqInRange = (Coord.ringDist(selectedSquare, currState.players[loggedInUname].pos) <= currState.players[loggedInUname].range);
-            const selSqReachable = (distsFromPlayer[selectedSquare] <= currState.players[loggedInUname].ap);
-
-            let allDisabled = true;
-            allDisabled &= ui.querySelector("button#moveButton").disabled = !(selSqReachable && !selSqOccupied);
-            allDisabled &= ui.querySelector("button#attackButton").disabled = !(selSqInRange && selSqIsOtherPlayer);
-            allDisabled &= ui.querySelector("button#giveButton").disabled = !(selSqInRange && selSqIsOtherPlayer);
-            allDisabled &= ui.querySelector("button#upgradeButton").disabled = !(selSqIsMe);
-            ui.style.display = (allDisabled ? "" : "block");
-        }
+        updateSelectedMenu();
     }
 
     draw();
@@ -362,7 +393,7 @@ function parseMessage({ data }) {
                     currState.players[u.player].pos = newCoord;
                     currState.grid[newCoord] = u.player;
                 }
-                if(loggedInUname != null){
+                if(loggedInUname != null && currState.players[loggedInUname].pos != null){
                     distsFromPlayer = currState.grid.getDistsFromPos(currState.players[loggedInUname].pos);
                 }
             }else{
@@ -375,6 +406,7 @@ function parseMessage({ data }) {
         showErrorModal(msg.msg, null);
     }
     draw();
+    updateSelectedMenu();
 }
 
 function attackModalSubmitted(){
@@ -445,6 +477,17 @@ function moveButtonPressed() {
     }));
 }
 
+function voteButtonPressed(){
+    let vote = currState.grid[selectedSquare];
+    if(currState.players[loggedInUname].vote == vote){
+        vote = null;
+    }
+    ws.send(JSON.stringify({
+        type: "vote",
+        patient: vote
+    }));
+}
+
 function upgradeButtonPressed(askAmount = false) {
     const maxAmount = Math.floor(currState.players[loggedInUname].ap/2);
     if(maxAmount < 0){ return; }
@@ -485,6 +528,7 @@ function addSelectedMenuListeners() {
     addSingleAndDblClickListener(ui.querySelector("button#attackButton"), () => attackButtonPressed(true), () => attackButtonPressed(false));
     addSingleAndDblClickListener(ui.querySelector("button#giveButton"), () => giveButtonPressed(true), () => giveButtonPressed(false));
     addSingleAndDblClickListener(ui.querySelector("button#upgradeButton"), () => upgradeButtonPressed(true), () => upgradeButtonPressed(false));
+    ui.querySelector("button#voteButton").addEventListener("click", () => { voteButtonPressed(); });
 }
 
 function errorModalOKClicked(){
@@ -542,4 +586,3 @@ export async function gamePageInit(_ctx, _width, _height) {
 
 /// TODO: add rulers with excel-like coordinates
 /// TODO: server console with the ability to start the game
-/// TODO: dead player voting ui

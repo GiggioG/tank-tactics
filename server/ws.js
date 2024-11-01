@@ -112,8 +112,8 @@ export function ws_handler(sock, req) {
             }
             attempt = Game.instance.tryUpgrade(sock.user, msg.amount);
         } else if (msg.type == "vote") {
-            if (!msg.patient || typeof msg.patient != "string") {
-                return writeError(sock, "ws message must include patient - username");
+            if (!msg.hasOwnProperty("patient") || (typeof msg.patient != "string" && msg.patient !== null)) {
+                return writeError(sock, "ws message must include patient - username or null");
             }
             attempt = Game.instance.tryVote(sock.user, msg.patient);
         } else {
