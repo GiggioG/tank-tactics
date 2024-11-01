@@ -27,6 +27,7 @@ const FAIL = err => ({ success: false, result: err });
  */
 const SUCCEED = (changes, event, writeLog=true) => {
     if(writeLog) appendFileSync("log.txt", `[${humanTimestamp()}] ${event}\r\n`);
+    saveDB();
     return { success: true, result: changes };
 };
 
@@ -44,7 +45,7 @@ export default class Game {
             this.players[uname] = {
                 name: uname,
                 hp: 3,
-                ap: 1,
+                ap: 0,
                 range: 2,
                 pos: positions[idx],
                 vote: null

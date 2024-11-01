@@ -40,7 +40,8 @@ function sendToPlayer(msg, usr) {
 export function giveOutApAndBroadcastResults() {
     if (db.status != "in-game") { return true; }
     let { vote: voteAttempt, ap: apAttempt } = Game.instance.giveOutAP();
-    db.gameState = Game.instance.serialise();
+    db.lastGaveOutAP = Number(new Date());
+    if(db.firstGaveOutAP == null){ db.firstGaveOutAP = db.lastGaveOutAP; }
     saveDB();
     /// ap updates - for everyone
     {
@@ -122,7 +123,6 @@ export function ws_handler(sock, req) {
 
         if (attempt) {
             if (attempt.success) {
-                db.gameState = Game.instance.serialise();
                 saveDB();
                 const sendObj = {
                     type: "updates",

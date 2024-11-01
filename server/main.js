@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as url from "url";
 import * as path from "path";
 import * as ws from "ws";
-import { initDB, saveDB, clearExpiredSessions } from "./db.js";
+import { initDB, saveDB, clearInvalidSessions } from "./db.js";
 import Game from "./game.js";
 import { Coord } from "../lib/coord.js"
 import Grid from "../lib/grid.js"
@@ -52,19 +52,32 @@ webSocketServer.shouldHandle = function (req) {
 if (db.status != "registration") {
     if (db.gameState == null) {
         Game.instance = new Game(Object.keys(db.accounts));
-        db.gameState = Game.instance.serialise();
         saveDB();
     } else {
         Game.instance = Game.deserialise(db.gameState);
     }
 }
 
-setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 0.5); giveOutApAndBroadcastResults(); /// TODO: set time to 24 hours
+setInterval(saveDB, 2 * 60 * 1000);
+setInterval(clearInvalidSessions, 2*60*1000);
 
-// TODO
-// setInterval(Game.instance.giveOutAP, 24*60*60*1000);
-// setInterval(saveDB, 2 * 60 * 1000);
-// setInterval(clearInvalidSessions, 2*60*1000); (invalid: expired or deleted user)
+const now = Number(new Date());
+const AP_PERIOD = 1000 * 60 * 0.5;
+if(db.lastGaveOutAP + AP_PERIOD < now){
+    /*
+    in case the game was down when AP has to be given out
+    deliberately don't give out for all the missed times (if multiple),
+    because that would cause chaos.
+    */
+    giveOutApAndBroadcastResults();
+}
 
-/// TODO
-/// remember when ap was last given out in order to give out appropriately for missed givings
+function floatMod(x, m){
+    const d = x/m;
+    return (d-Math.floor(d)) * m;
+}
+
+const timeUntilMultipleOfPeriod = AP_PERIOD - floatMod(now - db.firstGaveOutAP, AP_PERIOD);
+setTimeout(()=>{
+    setInterval(giveOutApAndBroadcastResults, AP_PERIOD);
+}, timeUntilMultipleOfPeriod);
