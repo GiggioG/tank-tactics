@@ -80,7 +80,7 @@ export default class Game {
         }
         return JSON.stringify(obj);
     }
-    serialiseForClient(){ /// without player votes
+    serialiseForClient(forPlayer=null){ /// anonymise player votes
         let obj = {
             dim: this.dim,
             alivePlayers: this.alivePlayers,
@@ -90,7 +90,9 @@ export default class Game {
             grid: this.grid.serialise()
         }
         for(const uname in obj.players){
-            delete obj.players[uname].vote; /// votes should be anonymous
+            if(uname != forPlayer){
+                obj.players[uname].vote = null;
+            }
         }
         return JSON.stringify(obj);
     }
@@ -229,8 +231,9 @@ export default class Game {
         let changes = this._vote(agent, patient);
         return SUCCEED(changes, `${agent} changed their vote to ${patient}`);
     }
-    _giveOutVoteAP() {
-        let changedUsers = { vote: new Set(), ap: new Set() };
+    giveOutAP() {
+        let voteChangedPlayers = new Set(), apChangedPlayers = new Set();
+        /// votes
         let counts = {};
         for (const uname in this.players) { counts[uname] = 0; }
         for(const uname in this.players){
@@ -238,29 +241,28 @@ export default class Game {
             if(p.hp > 0 || p.vote == null){ continue; }
             counts[p.vote]++;
             this.players[p.name].vote = null;
-            changedUsers.vote.add(p.name);
+            voteChangedPlayers.add(p.name);
         }
         for (const uname in counts) {
             if (counts[uname] >= 3) {
                 this.players[uname].ap++;
-                changedUsers.ap.add(uname);
+                apChangedPlayers.add(uname);
             }
         }
-        return changedUsers;
-    }
-    giveOutAP() {
-        let changedUsers = this._giveOutVoteAP();
+        /// regular
         for (const uname in this.players) {
             if (this.players[uname].hp > 0) {
                 this.players[uname].ap++;
-                changedUsers.ap.add(uname);
+                apChangedPlayers.add(uname);
             }
         }
 
-        let changes = [
-            ...Array.from(changedUsers.vote).map(e => this._changes(e, ["vote"]).reduce((a, b)=>[...a, ...b], [])),
-            ...Array.from(changedUsers.ap).map(e => this._changes(e, ["ap"])).reduce((a, b)=>[...a, ...b], [])
-        ];
-        return SUCCEED(changes, `AP was given out and votes were reset`);
+        let voteChangesNested = Array.from(voteChangedPlayers).map(p => this._changes(p, ["vote"]));
+        let apChangesNested = Array.from(apChangedPlayers).map(p => this._changes(p, ["ap"]));
+
+        return {
+            vote: SUCCEED(voteChangesNested.flat(), `AP was given out and votes were reset`),
+            ap: SUCCEED(apChangesNested.flat(), `AP was given out and votes were reset`)
+        };
     }
 }

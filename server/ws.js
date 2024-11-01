@@ -9,6 +9,7 @@ import { getSessionUser, parseCookies } from "./cookies.js";
 const genUuid = () => crypto.randomUUID();
 
 let socks = {};
+let userSocks = {};
 
 /**
  * @param {ws.WebSocket} sock
@@ -22,26 +23,40 @@ function writeError(sock, err) {
 }
 
 function broadcast(msg) {
-    let stringified = JSON.stringify(msg);
+    const stringified = JSON.stringify(msg);
     for (const id in socks) {
+        socks[id].send(stringified);
+    }
+}
+
+function sendToPlayer(msg, usr) {
+    const stringified = JSON.stringify(msg);
+    if (!userSocks[usr]) { return; }
+    for (const id of userSocks[usr]) {
         socks[id].send(stringified);
     }
 }
 
 export function giveOutApAndBroadcastResults() {
     if (db.status != "in-game") { return true; }
-    let attempt = Game.instance.giveOutAP();
-    if (attempt.success) {
-        db.gameState = Game.instance.serialise();
-        saveDB();
+    let { vote: voteAttempt, ap: apAttempt } = Game.instance.giveOutAP();
+    db.gameState = Game.instance.serialise();
+    saveDB();
+    /// ap updates - for everyone
+    {
         const sendObj = {
             type: "updates",
-            updates: attempt.result
+            updates: apAttempt.result
         };
         broadcast(sendObj);
-        return true;
-    } else {
-        return false;
+    }
+    /// vote updates - only for the voters
+    for(const ch of voteAttempt.result) {
+        const sendObj = {
+            type: "updates",
+            updates: [ch]
+        };
+        sendToPlayer(sendObj, ch.player);
     }
 }
 
@@ -55,15 +70,19 @@ export function ws_handler(sock, req) {
     socks[sock.uuid] = sock;
     let cookies = parseCookies(req.headers.cookie);
     sock.user = getSessionUser(cookies);
+    if (sock.user) {
+        if (!userSocks[sock.user]) { userSocks[sock.user] = new Set(); }
+        userSocks[sock.user].add(sock.uuid);
+    }
 
     sock.send(JSON.stringify({
         type: "gameState",
-        state: Game.instance.serialiseForClient()
+        state: Game.instance.serialiseForClient(sock.user)
     }));
     sock.on("message", rawMsg => {
         if (!sock.user) { return writeError(sock, "spectators (not logged in users) can't do things."); }
 
-        if(db.status == "post-game"){ return writeError(sock, "The game has already ended."); }
+        if (db.status == "post-game") { return writeError(sock, "The game has already ended."); }
         const msg = JSON.parse(rawMsg);
         let attempt = null;
         if (msg.type == "move") {
@@ -110,13 +129,13 @@ export function ws_handler(sock, req) {
                     updates: attempt.result
                 };
                 if (msg.type == "vote") {
-                    return sock.send(JSON.stringify({ sendObj }))
+                    return sock.send(JSON.stringify(sendObj))
                 }
                 broadcast(sendObj);
                 if (Game.instance.gameOver) {
                     db.status = "post-game";
                     saveDB();
-                    broadcast({type: "winner"});
+                    broadcast({ type: "winner" });
                 }
                 return;
             } else {
@@ -125,6 +144,9 @@ export function ws_handler(sock, req) {
         }
     });
     sock.on("close", () => {
+        if (sock.user) {
+            userSocks[sock.user].delete(sock.uuid);
+        }
         delete socks[sock.uuid];
     });
 }

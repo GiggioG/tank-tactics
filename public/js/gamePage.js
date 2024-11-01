@@ -228,6 +228,9 @@ function handleClick(cx, cy) {
     let pos = new Coord(Math.floor(y / squareSide), Math.floor(x / squareSide));
 
     if (selectedSquare != null && selectedSquare.equals(pos)) {
+        if(currState.grid[selectedSquare] != null){ /// TODO: actual interface
+            ws.send(JSON.stringify({type: "vote", patient: currState.grid[selectedSquare]}));
+        }
         selectedSquare = null;
     } else {
         selectedSquare = pos;
