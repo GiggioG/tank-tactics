@@ -1,5 +1,5 @@
-import * as https from "http"; // TODO
 import * as fs from "fs";
+import * as https from "https";
 import * as url from "url";
 import * as path from "path";
 import * as ws from "ws";
@@ -10,12 +10,13 @@ import Grid from "../lib/grid.js"
 import public_endpoint from "./public_endpoint.js";
 import api_endpoint from "./api.js";
 import { ws_handler, giveOutApAndBroadcastResults } from "./ws.js"
+const CONFIG = JSON.parse(fs.readFileSync("./config.json"));
 
 initDB();
 
 let webServer = https.createServer({
-    key: fs.readFileSync("./certs/devtest.key"),
-    cert: fs.readFileSync("./certs/devtest.crt"),
+    key: fs.readFileSync(CONFIG.tls.keyFile),
+    cert: fs.readFileSync(CONFIG.tls.crtFile),
 }, (req, res) => {
     let parsed = url.parse(req.url);
     let pathname = parsed.pathname;
@@ -26,7 +27,7 @@ let webServer = https.createServer({
         return api_endpoint(parsed, req, res);
     }
     return public_endpoint(parsed, req, res);
-}).listen(process.env.PORT || 8080);
+}).listen(process.env.PORT || CONFIG.customPort);
 
 
 let webSocketServer = new ws.WebSocketServer({

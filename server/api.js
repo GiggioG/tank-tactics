@@ -1,13 +1,13 @@
 import * as querystring from "querystring";
 import * as ws from "ws";
 import * as url from "url";
-import * as https from "http"; // TODO
+import * as https from "https";
 import * as crypto from "crypto";
 import { saveDB } from "./db.js";
 import { getSessionUser, parseCookies } from "./cookies.js";
 import Game from "./game.js";
 
-const COOKIE_EXPIRY = 500 * 60 * 1000;/// millis // TODO
+const COOKIE_EXPIRY = 2 * 24 * 60 * 60 * 1000;/// millis
 
 const getHash = e => crypto.createHash("sha256").update(e).digest("base64");
 const genUuid = () => crypto.randomUUID();

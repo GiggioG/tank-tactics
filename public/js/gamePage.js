@@ -567,7 +567,7 @@ export async function gamePageInit(_ctx, _width, _height) {
         ctx.stroke();
     }, 250);
 
-    ws = new WebSocket(`${location.protocol == "https:" ? "wss:" : "ws:"}//${location.host}/api/ws`);
+    ws = new WebSocket(`wss://${location.host}/api/ws`);
     ws.addEventListener("open", () => {
         clearInterval(loadingAnimationInterval);
 
@@ -584,5 +584,4 @@ export async function gamePageInit(_ctx, _width, _height) {
     });
 }
 
-/// TODO: add rulers with excel-like coordinates
-/// TODO: server console with the ability to start the game
+/// TODO: api endpoint for starting the game

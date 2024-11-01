@@ -37,11 +37,11 @@ export default function public_endpoint(parsed, req, res) {
         }
     }
 
-    if (path.extname(filepath) == "js") {
+    if (path.extname(filepath) == ".js") {
         res.writeHead(200, {
             "Content-Type": "text/javascript"
         });
-    } else if(path.extname(filepath == "css"){
+    } else if(path.extname(filepath) == ".css"){
         res.writeHead(200, {
             "Content-Type": "text/css"
         });

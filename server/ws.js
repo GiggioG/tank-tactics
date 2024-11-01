@@ -1,5 +1,5 @@
 import * as ws from "ws";
-import * as https from "http"; //TODO
+import * as https from "https";
 import * as crypto from "crypto";
 import Game from "./game.js";
 import { Coord } from "../lib/coord.js";

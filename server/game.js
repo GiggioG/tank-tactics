@@ -267,5 +267,3 @@ export default class Game {
         };
     }
 }
-
-/// TODO: human readable coordinates (excel-like) in the logs
