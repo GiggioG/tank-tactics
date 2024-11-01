@@ -25,8 +25,8 @@ const FAIL = err => ({ success: false, result: err });
  * @param {string} event 
  * @returns {{success: boolean, result: change[]}}
  */
-const SUCCEED = (changes, event) => {
-    appendFileSync("log.txt", `[${humanTimestamp()}] ${event}\r\n`);
+const SUCCEED = (changes, event, writeLog=true) => {
+    if(writeLog) appendFileSync("log.txt", `[${humanTimestamp()}] ${event}\r\n`);
     return { success: true, result: changes };
 };
 
@@ -262,7 +262,9 @@ export default class Game {
 
         return {
             vote: SUCCEED(voteChangesNested.flat(), `AP was given out and votes were reset`),
-            ap: SUCCEED(apChangesNested.flat(), `AP was given out and votes were reset`)
+            ap: SUCCEED(apChangesNested.flat(), `AP was given out and votes were reset`, false)
         };
     }
 }
+
+/// TODO: human readable coordinates (excel-like) in the logs

@@ -10,7 +10,9 @@
     --playerlist-winner-col: yellow;
 }
 
-/* TODO: add global font for whole project so it doesnt look like *crap* */
+* {
+    font-family: 'Consolas', monospace;
+}
 
 main {
     height: calc(100dvh - var(--nav-height));
@@ -47,11 +49,6 @@ ul {
 body {
     display: flex;
     flex-direction: column;
-}
-
-.highlighted {
-    color: var(--highlight-col);
-    /* TODO make beautiful*/
 }
 
 nav ul {
@@ -103,7 +100,7 @@ li.playerList-dead::before {
     content: "💀";
 }
 
-.listIsEmptyMessage{
+.listIsEmptyMessage {
     color: var(--list-empty-message-col);
     /* font-size: small; */
     font-style: italic;
