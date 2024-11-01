@@ -37,9 +37,13 @@ export default function public_endpoint(parsed, req, res) {
         }
     }
 
-    if (filepath.endsWith(".js")) {
+    if (path.extname(filepath) == "js") {
         res.writeHead(200, {
             "Content-Type": "text/javascript"
+        });
+    } else if(path.extname(filepath == "css"){
+        res.writeHead(200, {
+            "Content-Type": "text/css"
         });
     }
     return fs.createReadStream(filepath).pipe(res);

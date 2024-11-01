@@ -26,7 +26,7 @@ let webServer = https.createServer({
         return api_endpoint(parsed, req, res);
     }
     return public_endpoint(parsed, req, res);
-}).listen(8080);
+}).listen(process.env.PORT || 8080);
 
 
 let webSocketServer = new ws.WebSocketServer({
