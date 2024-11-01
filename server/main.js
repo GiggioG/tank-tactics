@@ -10,14 +10,21 @@ import Grid from "../lib/grid.js"
 import public_endpoint from "./public_endpoint.js";
 import api_endpoint from "./api.js";
 import { ws_handler, giveOutApAndBroadcastResults } from "./ws.js"
-const CONFIG = JSON.parse(fs.readFileSync("./config.json"));
+global.CONFIG = JSON.parse(fs.readFileSync("./config.json"));
 
 initDB();
 
 let webServer = https.createServer({
     key: fs.readFileSync(CONFIG.tls.keyFile),
     cert: fs.readFileSync(CONFIG.tls.crtFile),
-}, (req, res) => {
+}, async (req, res) => {
+    req.body = await new Promise((resolve, reject) => {
+        let requestBody = [];
+        req.on("data", chunk => requestBody.push(chunk) );
+        req.on("end", ()=>{
+            resolve(Buffer.concat(requestBody).toString());
+        });
+    });
     let parsed = url.parse(req.url);
     let pathname = parsed.pathname;
     if (pathname == "/") {
@@ -60,25 +67,32 @@ if (db.status != "registration") {
 }
 
 setInterval(saveDB, 2 * 60 * 1000);
-setInterval(clearInvalidSessions, 2*60*1000);
+setInterval(clearInvalidSessions, 2 * 60 * 1000);
 
-const now = Number(new Date());
-const AP_PERIOD = 1000 * 60 * 0.5;
-if(db.lastGaveOutAP + AP_PERIOD < now){
-    /*
-    in case the game was down when AP has to be given out
-    deliberately don't give out for all the missed times (if multiple),
-    because that would cause chaos.
-    */
-    giveOutApAndBroadcastResults();
+export function beginApGivingInterval() {
+    function floatMod(x, m) {
+        const d = x / m;
+        return (d - Math.floor(d)) * m;
+    }
+    const now = Number(new Date());
+    const AP_PERIOD = 1000 * 60 * 0.5;
+    if (db.lastGaveOutAP + AP_PERIOD < now) {
+        /*
+        in case the game was down when AP has to be given out
+        deliberately don't give out for all the missed times (if multiple),
+        because that would cause chaos.
+        */
+        giveOutApAndBroadcastResults();
+    }
+
+
+    const timeUntilMultipleOfPeriod = AP_PERIOD - floatMod(now - db.firstGaveOutAP, AP_PERIOD);
+    setTimeout(() => {
+        giveOutApAndBroadcastResults();
+        setInterval(giveOutApAndBroadcastResults, AP_PERIOD);
+    }, timeUntilMultipleOfPeriod);
 }
 
-function floatMod(x, m){
-    const d = x/m;
-    return (d-Math.floor(d)) * m;
+if (db.status == "in-game") {
+    beginApGivingInterval();
 }
-
-const timeUntilMultipleOfPeriod = AP_PERIOD - floatMod(now - db.firstGaveOutAP, AP_PERIOD);
-setTimeout(()=>{
-    setInterval(giveOutApAndBroadcastResults, AP_PERIOD);
-}, timeUntilMultipleOfPeriod);

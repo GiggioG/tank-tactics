@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console</title>
+</head>
+<body>
+    <label for="password">Password: </label><input type="password" name="password" id="password"><br>
+    <label for="command">Command: </label>
+    <textarea name="command" id="command"></textarea>
+    <button onclick="send()">Send Command</button>
+    <p></p>
+    <script>
+        const pwd = document.querySelector("input#password");
+        const cmd = document.querySelector("textArea#command");
+        const output = document.querySelector("p");
+        function send(){
+            fetch(`${location.origin}/api/evalJS?password=${pwd.value}`, {
+                method: "POST",
+                body: cmd.value
+            }).then(resp => {
+                output.style.color = (resp.status==200?"":"darkred");
+                return resp.text();
+            }).then(text => {
+                output.innerText = text;
+            });
+        }
+    </script>
+</body>
+</html>

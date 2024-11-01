@@ -3,3 +3,4 @@ certs
 db.json
 log.txt
 config.json
+.disableEval

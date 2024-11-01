@@ -1,11 +1,13 @@
 import * as querystring from "querystring";
 import * as ws from "ws";
+import * as fs from "fs";
 import * as url from "url";
 import * as https from "https";
 import * as crypto from "crypto";
 import { saveDB } from "./db.js";
 import { getSessionUser, parseCookies } from "./cookies.js";
 import Game from "./game.js";
+import { beginApGivingInterval } from "./main.js";
 
 const COOKIE_EXPIRY = 2 * 24 * 60 * 60 * 1000;/// millis
 
@@ -118,6 +120,56 @@ function getGameStatus(query, cookies) {
     return { status: 200, data: db.status };
 }
 
+function _startGame(){
+    db.status = "in-game";
+    Game.instance = new Game(Object.keys(db.accounts));
+    db.firstGaveOutAP = null;
+    db.lastGaveOutAP = null;
+    saveDB();
+    beginApGivingInterval();
+    return { status: 201, data: Game.instance.serialise() };
+}
+
+function startGame(query, cookies) {
+    if (db.status != "registration") {
+        return { status: 400, data: "You can only start the game while in the registration stage." };
+    }
+    if (!query["password"]) {
+        return { status: 400, data: "Must include administrator password." };
+    }
+    let password = query["password"];
+    if (password != CONFIG.adminPassword) {
+        return { status: 401, data: "Wrong administrator password." };
+    }
+    /// valid: create game
+    return _startGame();
+}
+
+function _evalJS(code) {
+    let returnValue;
+    try {
+        returnValue = eval(code);
+        return { status: 200, data: `${returnValue}` };
+    } catch (error) {
+        return { status: 500, data: `${error}` };
+    }
+}
+
+function evalJS(query, cookies, req) {
+    if (!query["password"]) {
+        return { status: 400, data: "Must include administrator password." };
+    }
+    let password = query["password"];
+    if (password != CONFIG.adminPassword) {
+        return { status: 401, data: "Wrong administrator password." };
+    }
+    if (fs.existsSync(".disableEval")) {
+        return { status: 400, data: "Eval is disabled." };
+    }
+    /// valid: eval
+    return _evalJS(req.body);
+}
+
 /**
  * 
  * @param {url.URL} parsed
@@ -145,6 +197,10 @@ export default function api_endpoint(parsed, req, res) {
         ({ status, data, setCookies } = unregister(query, cookies));
     } else if (endpoint == "getGameState" && req.method == "GET") {
         ({ status, data, setCookies } = getGameStatus(query, cookies));
+    } else if (endpoint == "startGame" && req.method == "POST") {
+        ({ status, data, setCookies } = startGame(query, cookies));
+    } else if (endpoint == "evalJS" && req.method == "POST") {
+        ({ status, data, setCookies } = evalJS(query, cookies, req));
     } else {
         status = 404;
         data = "Error 404: Not found.";

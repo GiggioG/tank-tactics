@@ -19,6 +19,7 @@
         (async () => {
             await getLoggedInUser();
             await getGameState();
+            if(gameState == "registration"){ location.href = "/account"; }
             let canvas = document.querySelector("canvas#game-canvas");
             let ctx = canvas.getContext("2d");
 
