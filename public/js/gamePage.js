@@ -6,8 +6,10 @@ const COLOURS = {
     gridBackground: "black",
 
     normalPlayerBorder: "darkgreen",
+    loggedInPlayerBorder: "lime",
     winnerBorder: "magenta",
     normalPlayerBackground: "black",
+    loggedInPlayerBackground: "black",
     winnerBackground: "rgb(50, 0, 50)",
 
     normalName: "white",
@@ -85,8 +87,8 @@ function setup() { /// drawing setup, name borrowed from p5.js
         distsFromPlayer = currState.grid.getDistsFromPos(playerPos);
     } else {
         let avgR = 0, avgC = 0, aliveCount = 0;
-        for (const p in currState.players){
-            if(currState.players[p].pos != null){
+        for (const p in currState.players) {
+            if (currState.players[p].pos != null) {
                 avgR += currState.players[p].pos.r;
                 avgC += currState.players[p].pos.c;
                 aliveCount++;
@@ -105,8 +107,8 @@ function setup() { /// drawing setup, name borrowed from p5.js
 function drawPlayer(p) {
     let x = originX + p.pos.c * squareSide, y = originY + p.pos.r * squareSide;
 
-    ctx.fillStyle = COLOURS.normalPlayerBorder;
-    if(gameState == "post-game" && currState.winner == p.name){
+    ctx.fillStyle = (p.name == loggedInUname ? COLOURS.loggedInPlayerBorder : COLOURS.normalPlayerBorder);
+    if (gameState == "post-game" && currState.winner == p.name) {
         ctx.fillStyle = COLOURS.winnerBorder;
     }
     ctx.fillRect(x, y, squareSide, squareSide);
@@ -120,8 +122,8 @@ function drawPlayer(p) {
     const middle = x + squareSide / 2;
     const innerWidth = squareSide - 2 * BORDER_WIDTH;
 
-    ctx.fillStyle = COLOURS.normalPlayerBackground;
-    if(gameState == "post-game" && currState.winner == p.name){
+    ctx.fillStyle = (p.name == loggedInUname ? COLOURS.loggedInPlayerBackground : COLOURS.normalPlayerBackground);
+    if (gameState == "post-game" && currState.winner == p.name) {
         ctx.fillStyle = COLOURS.winnerBackground;
     }
     ctx.fillRect(left, top, innerWidth, innerWidth);
@@ -132,7 +134,7 @@ function drawPlayer(p) {
     ctx.textBaseline = "top";
     ctx.fillStyle = COLOURS.normalName;
     let name = p.name;
-    if(gameState == "post-game" && currState.winner == p.name){
+    if (gameState == "post-game" && currState.winner == p.name) {
         ctx.lineWidth = 2;
         ctx.fillStyle = COLOURS.winnerName;
         name = `👑${p.name}👑`;
@@ -257,13 +259,13 @@ function draw() {
         }
     }
 
-    if(gameState == "in-game" && loggedInUname && currState.players[loggedInUname].hp <= 0){
+    if (gameState == "in-game" && loggedInUname && currState.players[loggedInUname].hp <= 0) {
         let vote = currState.players[loggedInUname].vote;
         let text;
-        if(vote == null){
+        if (vote == null) {
             text = `YOU HAVEN'T VOTED`;
             ctx.fillStyle = COLOURS.hasntVoted;
-        }else{
+        } else {
             text = `CURRENT VOTE: ${vote}`;
             ctx.fillStyle = COLOURS.currentVote;
         }
@@ -271,13 +273,13 @@ function draw() {
         ctx.font = "30px 'Consolas', monospace";
         ctx.textBaseline = "top";
         ctx.textAlign = "center";
-        ctx.fillText(text, width/2, 5, width);
+        ctx.fillText(text, width / 2, 5, width);
     }
 
     drawSelectedUi();
 }
 
-function updateSelectedMenu(){
+function updateSelectedMenu() {
     if (selectedSquare && loggedInUname && gameState == "in-game") {
         const imAlive = (currState.players[loggedInUname].hp > 0);
         const selSqOccupied = (currState.grid[selectedSquare] != null);
@@ -285,22 +287,30 @@ function updateSelectedMenu(){
         const selSqIsOtherPlayer = (selSqOccupied && currState.grid[selectedSquare] != loggedInUname);
         const selSqInRange = (imAlive && Coord.ringDist(selectedSquare, currState.players[loggedInUname].pos) <= currState.players[loggedInUname].range);
         const selSqReachable = (imAlive && distsFromPlayer[selectedSquare] <= currState.players[loggedInUname].ap);
+        const ap = currState.players[loggedInUname].ap;
 
         let allDisabled = true;
         allDisabled &= ui.querySelector("button#moveButton").disabled = !(selSqReachable && !selSqOccupied && imAlive);
-        allDisabled &= ui.querySelector("button#attackButton").disabled = !(selSqInRange && selSqIsOtherPlayer && imAlive);
-        allDisabled &= ui.querySelector("button#giveButton").disabled = !(selSqInRange && selSqIsOtherPlayer && imAlive);
-        allDisabled &= ui.querySelector("button#upgradeButton").disabled = !(selSqIsMe && imAlive);
-        allDisabled &= ui.querySelector("button#voteButton").disabled = !( selSqIsOtherPlayer && !imAlive );
+        allDisabled &= ui.querySelector("button#attackButton").disabled = !(selSqInRange && selSqIsOtherPlayer && (ap >= 1) && imAlive);
+        allDisabled &= ui.querySelector("button#giveButton").disabled = !(selSqInRange && selSqIsOtherPlayer && (ap >= 1) && imAlive);
+        allDisabled &= ui.querySelector("button#upgradeButton").disabled = !(selSqIsMe && (ap >= 2) && imAlive);
+        allDisabled &= ui.querySelector("button#voteButton").disabled = !(selSqIsOtherPlayer && !imAlive);
         ui.style.display = (allDisabled ? "" : "block");
 
-        if(!ui.querySelector("button#voteButton").disabled){
-            if(currState.players[loggedInUname].vote == currState.grid[selectedSquare]){
+        if (!ui.querySelector("button#voteButton").disabled) {
+            if (currState.players[loggedInUname].vote == currState.grid[selectedSquare]) {
                 ui.querySelector("button#voteButton").innerHTML = "❎";
-            }else{
+            } else {
                 ui.querySelector("button#voteButton").innerHTML = "✅";
             }
         }
+    } else {
+        ui.querySelector("button#moveButton").disabled = true;
+        ui.querySelector("button#attackButton").disabled = true;
+        ui.querySelector("button#giveButton").disabled = true;
+        ui.querySelector("button#upgradeButton").disabled = true;
+        ui.querySelector("button#voteButton").disabled = true;
+        ui.style.display = "";
     }
 }
 
@@ -312,8 +322,8 @@ function handleClick(cx, cy) {
         selectedSquare = null;
     } else {
         selectedSquare = pos;
-        updateSelectedMenu();
     }
+    updateSelectedMenu();
 
     draw();
 }
@@ -384,32 +394,32 @@ function parseMessage({ data }) {
         setup();
     } else if (msg.type == "updates") {
         msg.updates.forEach(u => {
-            if(u.stat == "pos"){
+            if (u.stat == "pos") {
                 currState.grid[currState.players[u.player].pos] = null;
-                if(u.val == null){
+                if (u.val == null) {
                     currState.players[u.player].pos = null;
-                }else{
+                } else {
                     const newCoord = crd(u.val);
                     currState.players[u.player].pos = newCoord;
                     currState.grid[newCoord] = u.player;
                 }
-                if(loggedInUname != null && currState.players[loggedInUname].pos != null){
+                if (loggedInUname != null && currState.players[loggedInUname].pos != null) {
                     distsFromPlayer = currState.grid.getDistsFromPos(currState.players[loggedInUname].pos);
                 }
-            }else{
+            } else {
                 currState.players[u.player][u.stat] = u.val;
             }
         });
-    } else if(msg.type == "winner"){
+    } else if (msg.type == "winner") {
         location.href = "/list";
-    } else if(msg.type == "error"){
+    } else if (msg.type == "error") {
         showErrorModal(msg.msg, null);
     }
     draw();
     updateSelectedMenu();
 }
 
-function attackModalSubmitted(){
+function attackModalSubmitted() {
     const amount = Number(getActiveModalBkg().querySelector("input.amount").value);
     ws.send(JSON.stringify({
         "type": "attack",
@@ -419,7 +429,7 @@ function attackModalSubmitted(){
     closeModal();
 }
 
-function giveModalSubmitted(){
+function giveModalSubmitted() {
     const amount = Number(getActiveModalBkg().querySelector("input.amount").value);
     ws.send(JSON.stringify({
         "type": "give",
@@ -429,7 +439,7 @@ function giveModalSubmitted(){
     closeModal();
 }
 
-function upgradeModalSubmitted(){
+function upgradeModalSubmitted() {
     const amount = Number(getActiveModalBkg().querySelector("input.amount").value);
     ws.send(JSON.stringify({
         "type": "upgrade",
@@ -440,8 +450,8 @@ function upgradeModalSubmitted(){
 
 function attackButtonPressed(askAmount = false) {
     const maxAmount = currState.players[loggedInUname].ap;
-    if(maxAmount < 0){ return; }
-    if(!askAmount){
+    if (maxAmount < 0) { return; }
+    if (!askAmount) {
         ws.send(JSON.stringify({
             "type": "attack",
             "patient": currState.grid[selectedSquare],
@@ -456,8 +466,8 @@ function attackButtonPressed(askAmount = false) {
 
 function giveButtonPressed(askAmount = false) {
     const maxAmount = currState.players[loggedInUname].ap;
-    if(maxAmount < 0){ return; }
-    if(!askAmount){
+    if (maxAmount < 0) { return; }
+    if (!askAmount) {
         ws.send(JSON.stringify({
             "type": "give",
             "patient": currState.grid[selectedSquare],
@@ -477,9 +487,9 @@ function moveButtonPressed() {
     }));
 }
 
-function voteButtonPressed(){
+function voteButtonPressed() {
     let vote = currState.grid[selectedSquare];
-    if(currState.players[loggedInUname].vote == vote){
+    if (currState.players[loggedInUname].vote == vote) {
         vote = null;
     }
     ws.send(JSON.stringify({
@@ -489,9 +499,9 @@ function voteButtonPressed(){
 }
 
 function upgradeButtonPressed(askAmount = false) {
-    const maxAmount = Math.floor(currState.players[loggedInUname].ap/2);
-    if(maxAmount < 0){ return; }
-    if(!askAmount){
+    const maxAmount = Math.floor(currState.players[loggedInUname].ap / 2);
+    if (maxAmount < 0) { return; }
+    if (!askAmount) {
         ws.send(JSON.stringify({
             "type": "upgrade",
             "amount": 1
@@ -531,14 +541,14 @@ function addSelectedMenuListeners() {
     ui.querySelector("button#voteButton").addEventListener("click", () => { voteButtonPressed(); });
 }
 
-function errorModalOKClicked(){
-    if(typeof errorModalOKFunction == "function"){
+function errorModalOKClicked() {
+    if (typeof errorModalOKFunction == "function") {
         errorModalOKFunction();
     }
     closeModal();
 }
 
-function showErrorModal(errorText, okFunction){
+function showErrorModal(errorText, okFunction) {
     const modalBkg = document.querySelector("div#errorModalBkg");
     modalBkg.querySelector("p.modalError").innerText = `${errorText}`;
     errorModalOKFunction = okFunction;
@@ -583,5 +593,3 @@ export async function gamePageInit(_ctx, _width, _height) {
         ws.addEventListener("close", inCaseOfEmergency);
     });
 }
-
-/// TODO: api endpoint for starting the game

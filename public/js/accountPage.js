@@ -41,7 +41,13 @@ async function _register() {
 }
 
 async function _unregister() {
-    if (!confirm("Confirm deletion of your account? You can register again before the registering period ends.")) { return; }
+    let confirmUnregister = await new Promise((resolve, reject) => {
+        const modalBkg = document.querySelector("div#confirmUnregisterModalBkg");
+        modalBkg.querySelector("button#confirmUnregisterModalOKButton").addEventListener("click", () => { closeModal(); resolve(true); }, { once: true });
+        modalBkg.querySelector("button#confirmUnregisterModalCancelButton").addEventListener("click", () => { closeModal(); resolve(false); }, { once: true });
+        openModal(modalBkg);
+    });
+    if (!confirmUnregister) { return; }
     await fetch(`${location.origin}/api/unregister`, { method: "DELETE" });
     location.reload();
 }

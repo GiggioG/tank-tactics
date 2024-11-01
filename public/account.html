@@ -87,6 +87,18 @@
         </div>
     </div>
 
+    <div class="modalBkg" id="confirmUnregisterModalBkg">
+        <div class="modal">
+            <h2>Are you sure you want to delete your account?</h2>
+            <p>You can register again before the registration period ends.</p>
+            <form onsubmit="return false;"> <!-- stackoverflow -->
+                <button id="confirmUnregisterModalOKButton">Unregister</button>
+                <button id="confirmUnregisterModalCancelButton">Cancel</button>
+                <br>
+                <p class="modalError"></p>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>
