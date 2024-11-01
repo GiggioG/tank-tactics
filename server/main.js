@@ -59,7 +59,7 @@ if (db.status != "registration") {
     }
 }
 
-setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 0.5); giveOutApAndBroadcastResults(); /// TODO: temporary time
+setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 0.5); giveOutApAndBroadcastResults(); /// TODO: set time to 24 hours
 
 // TODO
 // setInterval(Game.instance.giveOutAP, 24*60*60*1000);
@@ -68,5 +68,3 @@ setInterval(giveOutApAndBroadcastResults, 1000 * 60 * 0.5); giveOutApAndBroadcas
 
 /// TODO
 /// remember when ap was last given out in order to give out appropriately for missed givings
-
-/// TODO api route to start game without 

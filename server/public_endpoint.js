@@ -5,7 +5,11 @@ export default function public_endpoint(parsed, req, res) {
     const baseDir = process.cwd();
     let { pathname, query } = parsed;
     let filepath = null;
-    if (pathname.startsWith("/lib")) {
+    if(pathname == "/log"){
+        const logFilePath = path.join(baseDir, "log.txt");
+        if (!fs.existsSync(logFilePath)) { fs.writeFileSync(logFilePath, ""); }
+        return fs.createReadStream(logFilePath).pipe(res);
+    } else if (pathname.startsWith("/lib")) {
         let libDir = path.join(baseDir, "lib"); //.replace(/\\/g, '/');
         filepath = path.join(libDir, pathname.replace("lib/", ""));
         if (!filepath.startsWith(libDir)) { return; }

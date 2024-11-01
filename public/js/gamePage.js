@@ -1,6 +1,31 @@
 import { Coord, crd } from "../../lib/coord.js";
 import Grid from "../../lib/grid.js";
 
+const COLOURS = {
+    gridLines: "darkgrey",
+    gridBackground: "black",
+
+    normalPlayerBorder: "darkgreen",
+    winnerBorder: "magenta",
+    normalPlayerBackground: "black",
+    winnerBackground: "rgb(50, 0, 50)",
+
+    normalName: "white",
+    winnerName: "yellow",
+
+    hpStat: "red",
+    apStat: "lime",
+    rangeStat: "orange",
+
+    thisPlayerRangeBorder: "orange",
+    thisPlayerRangeFill: "rgb(255, 165, 0, 0.2)", /// "orange" with opacity
+    selPlayerRangeBorder: "maroon",
+    selPlayerRangeFill: "rgb(128, 0, 0, 0.2)", /// "maroon" with opacity
+
+    reachableSquareFill: "rgb(0, 0, 255, 0.3)",
+    selctedSquareBorder: "yellow",
+}
+
 let ws = null;
 /**
  * @type {CanvasRenderingContext2D}
@@ -17,6 +42,8 @@ let dim = null;
 
 let selectedSquare = null;
 let distsFromPlayer = null;
+
+let errorModalOKFunction = null;
 
 function boundOrigin() {
     if (gridSide > width) {
@@ -72,13 +99,16 @@ function setup() { /// drawing setup, name borrowed from p5.js
     document.querySelector("button#modalUpgradeButton").addEventListener("click", upgradeModalSubmitted);
 }
 
-function drawPlayer(p) { /// TODO: draw a crown on the winner post-game
+function drawPlayer(p) {
     let x = originX + p.pos.c * squareSide, y = originY + p.pos.r * squareSide;
 
-    ctx.fillStyle = "darkgreen"; ///colors
+    ctx.fillStyle = COLOURS.normalPlayerBorder;
+    if(gameState == "post-game" && currState.winner == p.name){
+        ctx.fillStyle = COLOURS.winnerBorder;
+    }
     ctx.fillRect(x, y, squareSide, squareSide);
 
-    const BORDER_WIDTH = 3, MARGIN = 5; /// TODO: config
+    const BORDER_WIDTH = 3, MARGIN = 5;
 
     const left = x + BORDER_WIDTH;
     const top = y + BORDER_WIDTH;
@@ -87,32 +117,35 @@ function drawPlayer(p) { /// TODO: draw a crown on the winner post-game
     const middle = x + squareSide / 2;
     const innerWidth = squareSide - 2 * BORDER_WIDTH;
 
-    ctx.fillStyle = "black";
+    ctx.fillStyle = COLOURS.normalPlayerBackground;
+    if(gameState == "post-game" && currState.winner == p.name){
+        ctx.fillStyle = COLOURS.winnerBackground;
+    }
     ctx.fillRect(left, top, innerWidth, innerWidth);
 
     ctx.lineWidth = 1;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillStyle = "white"; ///colors
+    ctx.fillStyle = COLOURS.normalName;
     let name = p.name;
     if(gameState == "post-game" && currState.winner == p.name){
         ctx.lineWidth = 2;
-        ctx.fillStyle = "yellow";
+        ctx.fillStyle = COLOURS.winnerName;
         name = `👑${p.name}👑`;
     }
     ctx.fillText(name, middle, top + MARGIN, innerWidth);
 
     ctx.textBaseline = "bottom";
 
-    ctx.fillStyle = "red"; ///colors
+    ctx.fillStyle = COLOURS.hpStat;
     ctx.textAlign = "left";
     ctx.fillText(`${p.hp}`, left + MARGIN, bottom - MARGIN, innerWidth);
 
-    ctx.fillStyle = "lime"; ///colors
+    ctx.fillStyle = COLOURS.apStat;
     ctx.textAlign = "center";
     ctx.fillText(`${p.ap}`, middle, bottom - MARGIN, innerWidth);
 
-    ctx.fillStyle = "orange"; ///colors
+    ctx.fillStyle = COLOURS.rangeStat;
     ctx.textAlign = "right";
     ctx.fillText(`${p.range}`, right - MARGIN, bottom - MARGIN, innerWidth);
 }
@@ -140,10 +173,10 @@ function drawSelectedUi() {
 }
 
 function draw() {
-    ctx.fillStyle = "black"; ///colors
+    ctx.fillStyle = COLOURS.gridBackground;
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = "darkgrey"; ///colors
+    ctx.strokeStyle = COLOURS.gridLines;
     ctx.lineWidth = 1;
     for (let i = 0; i <= dim; i++) {
         ctx.beginPath();
@@ -161,9 +194,9 @@ function draw() {
         let playerPos = currState.players[loggedInUname].pos;
         let playerRange = currState.players[loggedInUname].range;
 
-        ctx.strokeStyle = "orange"; ///colors
+        ctx.strokeStyle = COLOURS.thisPlayerRangeBorder;
         ctx.lineWidth = 2;
-        ctx.fillStyle = "rgb(255, 165, 0, 0.2)"; ///colors (orange, only with opacity)
+        ctx.fillStyle = COLOURS.thisPlayerRangeFill;
         ctx.beginPath();
         ctx.rect(
             originX + (playerPos.c - playerRange) * squareSide,
@@ -180,9 +213,9 @@ function draw() {
         let playerPos = currState.players[currState.grid[selectedSquare]].pos;
         let playerRange = currState.players[currState.grid[selectedSquare]].range;
 
-        ctx.strokeStyle = "maroon"; ///colors
+        ctx.strokeStyle = COLOURS.selPlayerRangeBorder;
         ctx.lineWidth = 2;
-        ctx.fillStyle = "rgb(128, 0, 0, 0.2)"; ///colors (maroon, only with opacity)
+        ctx.fillStyle = COLOURS.selPlayerRangeFill;
         ctx.beginPath();
         ctx.rect(
             originX + (playerPos.c - playerRange) * squareSide,
@@ -201,7 +234,7 @@ function draw() {
             if (loggedInUname && currState.players[loggedInUname].hp > 0) {
                 /// highlight reachable
                 if ((distsFromPlayer[r][c] <= currState.players[loggedInUname].ap)) {
-                    ctx.fillStyle = "rgb(0, 0, 255, 0.3)";///colors
+                    ctx.fillStyle = COLOURS.reachableSquareFill;
                     ctx.fillRect(x, y, squareSide, squareSide);
                 }
             }
@@ -213,7 +246,7 @@ function draw() {
                 }
             }
             if (selectedSquare != null && selectedSquare.r == r && selectedSquare.c == c) {
-                ctx.strokeStyle = "yellow";///colors
+                ctx.strokeStyle = COLOURS.selctedSquareBorder;
                 ctx.lineWidth = 3;
                 ctx.strokeRect(x, y, squareSide, squareSide);
             }
@@ -263,7 +296,7 @@ function addCanvasListeners() {
         handleClick(ev.clientX - canvasX, ev.clientY - canvasY);
     })
     ctx.canvas.addEventListener("touchstart", ev => {
-        if (ev.touches.length != 1) { return; /* TODO: zooming */ }
+        if (ev.touches.length != 1) { return; }
         panningTouch = ev.touches[0].identifier;
         panStartCoords = { x: ev.touches[0].clientX - canvasX, y: ev.touches[0].clientY - canvasY };
         panOffset = { x: 0, y: 0 };
@@ -338,6 +371,8 @@ function parseMessage({ data }) {
         });
     } else if(msg.type == "winner"){
         location.href = "/list";
+    } else if(msg.type == "error"){
+        showErrorModal(msg.msg, null);
     }
     draw();
 }
@@ -425,8 +460,6 @@ function upgradeButtonPressed(askAmount = false) {
     openModal(modalBkg);
 }
 
-/// TODO: ui for when the game is ended.
-
 function addSingleAndDblClickListener(element, clickListener, dblClickListener) {
     element.addEventListener("click", ev1 => {
         if (element.bigListenerDisabled) { return; }
@@ -454,6 +487,20 @@ function addSelectedMenuListeners() {
     addSingleAndDblClickListener(ui.querySelector("button#upgradeButton"), () => upgradeButtonPressed(true), () => upgradeButtonPressed(false));
 }
 
+function errorModalOKClicked(){
+    if(typeof errorModalOKFunction == "function"){
+        errorModalOKFunction();
+    }
+    closeModal();
+}
+
+function showErrorModal(errorText, okFunction){
+    const modalBkg = document.querySelector("div#errorModalBkg");
+    modalBkg.querySelector("p.modalError").innerText = `${errorText}`;
+    errorModalOKFunction = okFunction;
+    openModal(modalBkg);
+}
+
 /**
  * 
  * @param {CanvasRenderingContext2D} _ctx
@@ -464,11 +511,10 @@ export async function gamePageInit(_ctx, _width, _height) {
     height = _height;
 
     let loadingAnimationInterval = setInterval(() => {
-        ctx.fillStyle = "black"; /// TODO - colours (vsichkite sa markirani s ///colors)
+        ctx.fillStyle = COLOURS.gridBackground;
         ctx.fillRect(0, 0, width, height);
 
-        ctx.fillStyle = "red"; ///colors
-        ctx.strokeStyle = "blue"; ///colors
+        ctx.strokeStyle = COLOURS.normalPlayerBorder;
         ctx.lineWidth = 2;
         ctx.beginPath();
         let d = new Date();
@@ -483,16 +529,17 @@ export async function gamePageInit(_ctx, _width, _height) {
 
         addCanvasListeners();
         addSelectedMenuListeners();
+        document.querySelector("div#errorModalBkg button#errorModalOKButton").addEventListener("click", errorModalOKClicked);
 
         ws.addEventListener("message", parseMessage);
-        ws.addEventListener("error", () => {
-            alert("Connection error, reload page.");
-            location.reload();
-        })
+        const inCaseOfEmergency = () => {
+            showErrorModal("Connection error, reload page.", location.reload.bind(location));
+        };
+        ws.addEventListener("error", inCaseOfEmergency);
+        ws.addEventListener("close", inCaseOfEmergency);
     });
 }
 
 /// TODO: add rulers with excel-like coordinates
-/// TODO: add proper dialog for when an action fails
-/// TODO: server console
+/// TODO: server console with the ability to start the game
 /// TODO: dead player voting ui
