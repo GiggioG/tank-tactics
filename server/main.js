@@ -83,7 +83,7 @@ export function beginApGivingInterval() {
         return (d - Math.floor(d)) * m;
     }
     const now = Number(new Date());
-    const AP_PERIOD = 1000 * 60 * 0.5;
+    const AP_PERIOD = 1000 * 60 * 60 * 24;
     if (db.lastGaveOutAP + AP_PERIOD < now) {
         /*
         in case the game was down when AP has to be given out

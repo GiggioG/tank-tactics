@@ -197,7 +197,7 @@ export default function api_endpoint(parsed, req, res) {
         ({ status, data, setCookies } = unregister(query, cookies));
     } else if (endpoint == "getGameState" && req.method == "GET") {
         ({ status, data, setCookies } = getGameStatus(query, cookies));
-    } else if (endpoint == "startGame" && req.method == "POST") {
+    } else if (endpoint == "startGame" && req.method == "GET") {
         ({ status, data, setCookies } = startGame(query, cookies));
     } else if (endpoint == "evalJS" && req.method == "POST") {
         ({ status, data, setCookies } = evalJS(query, cookies, req));
