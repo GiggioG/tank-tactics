@@ -2,7 +2,7 @@ import * as querystring from "querystring";
 import * as ws from "ws";
 import * as fs from "fs";
 import * as url from "url";
-import * as https from "https";
+import * as https from "http";
 import * as crypto from "crypto";
 import { saveDB } from "./db.js";
 import { getSessionUser, parseCookies } from "./cookies.js";
@@ -138,7 +138,7 @@ function startGame(query, cookies) {
         return { status: 400, data: "Must include administrator password." };
     }
     let password = query["password"];
-    if (password != CONFIG.adminPassword) {
+    if (password !== process.env.ADMIN_PASSWORD) {
         return { status: 401, data: "Wrong administrator password." };
     }
     /// valid: create game
@@ -160,7 +160,7 @@ function evalJS(query, cookies, req) {
         return { status: 400, data: "Must include administrator password." };
     }
     let password = query["password"];
-    if (password != CONFIG.adminPassword) {
+    if (password !== process.env.ADMIN_PASSWORD) {
         return { status: 401, data: "Wrong administrator password." };
     }
     if (fs.existsSync(".disableEval")) {

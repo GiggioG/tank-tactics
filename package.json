@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/GiggioG/tank-tactics#readme",
   "dependencies": {
-    "ws": "^8.14.2"
+    "dotenv": "^16.4.5",
+    "ws": "^8.18.0"
   }
 }

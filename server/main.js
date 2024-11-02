@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as https from "https";
+import * as http from "http";
 import * as url from "url";
 import * as path from "path";
 import * as ws from "ws";
@@ -10,14 +11,12 @@ import Grid from "../lib/grid.js"
 import public_endpoint from "./public_endpoint.js";
 import api_endpoint from "./api.js";
 import { ws_handler, giveOutApAndBroadcastResults } from "./ws.js"
-global.CONFIG = JSON.parse(fs.readFileSync("./config.json"));
+import dotEnv from "dotenv";
+dotEnv.config();
 
 initDB();
 
-let webServer = https.createServer({
-    key: fs.readFileSync(CONFIG.tls.keyFile),
-    cert: fs.readFileSync(CONFIG.tls.crtFile),
-}, async (req, res) => {
+const httpListener = async (req, res) => {
     req.body = await new Promise((resolve, reject) => {
         let requestBody = [];
         req.on("data", chunk => requestBody.push(chunk) );
@@ -34,8 +33,16 @@ let webServer = https.createServer({
         return api_endpoint(parsed, req, res);
     }
     return public_endpoint(parsed, req, res);
-}).listen(process.env.PORT || CONFIG.customPort);
-
+};
+let webServer;
+if(process.env.USE_HTTPS == "false"){
+    webServer = http.createServer(httpListener).listen(process.env.PORT);
+}else{
+    webServer = https.createServer({
+        key: fs.readFileSync(process.env.KEY_PATH),
+        cert: fs.readFileSync(process.env.CRT_PATH),
+    }, httpListener).listen(process.env.PORT);
+}
 
 let webSocketServer = new ws.WebSocketServer({
     server: webServer,
