@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rules</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <script defer src="./js/includes.js"></script>
+
+    <style>
+        main {
+            padding-left: 10vw;
+            padding-right: 10vw;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <!-- Mostly copy-pasted from the first version of this game -->
+        <h1 class="h">Tank Tactics</h1>
+        <h2>Rules</h2> 
+        <p>
+            Tank Tactics is an implementation of the game "Tank Turn Tactics" from <a href="https://youtu.be/t9WMNuyjm4w">this GDC talk</a>. I made it as close as possible to the game described in the talk, so I recommend watching it and learning the rules
+            that way. For the people who don't want to do that, I have this guide for them.
+        </p>
+        <div id="Stats">
+            <h2 class="h">Stats</h2>
+            <p>
+                Each player has 3 stats. They are the following:
+            </p>
+            <h3 id="HP" class="h"><i class="heart-replace"></i> Health (HP)</h3>
+            <p>
+                Health (or HP) is the amount of health a player has left. Every player starts with 3 Health. You can <a href="#Attacking">attack</a> players to lower their HP. HP can not be healed. Once a player's HP drops to 0, they join <a href="#Jury">the Jury</a> and are no longer able to interact with other players.
+            </p>
+            <h3 id="AP" class="h"><i class="bolt-replace"></i> Action Points (AP)</h3>
+            <p>
+                Action points (or AP) are used to <a href="#Actions">do everything in this game</a>. Every player starts with one. You can give AP to other players. Once every in-game day, every alive player gets one more AP. You can also obtain AP through
+                <a href="#Jury">the Jury</a>.
+            </p>
+            <h3 id="Range" class="h"><i class="bullseye-replace"></i> Range</h3>
+            <p>
+                Range is the distance where you can't interact with players further than that distance. Every player's range starts at 2. Range can be <a href="#Upgrading_Range">upgraded</a>. You can see your range as the yellow squares around you.
+                Your own range is highlighted in yellow, and if you select another player, their range is highlighted in dark red.
+            </p>
+        </div>
+        <div id="Actions">
+            <h2 class="h">Actions</h2>
+            <p>
+                There are 4 actions that are able to do in the game, and they are the following:
+            </p>
+            <h3 id="Moving" class="h">🏃‍♂️ Moving</h3>
+            <p>
+                Moving is changing your position. You are able to move one square in any direction (without the diagonals) per <a href="#AP">AP</a>.
+                The squares that you can reach with your current amount of AP are highlighted in blue. You move by selecting an square and clicking 🏃‍♂️.
+            </p>
+            <h3 id="Attacking" class="h">🔫 Attacking</h3>
+            <p>
+                Attacking is reducing another player's <a href="#HP">HP</a>. You can only attack in your <a href="#Range">range</a>. You remove one HP from your opponent per <a href="#AP">AP</a> used.
+                You attack by selecting a player in your range and clicking 🔫. If you double click it, it will automatically just deal 1 damage.
+            </p>
+            <h3 id="Giving_AP" class="h">✋ Giving AP</h3>
+            <p>
+                You can give <a href="#AP">AP</a> to players in your range. You give 1 AP per AP.
+                You give AP by selecting a player in your range and clicking ✋. If you double click it, it will automatically just give 1 AP.
+            </p>
+            <h3 id="Upgrading_Range" class="h">✨ Upgrading Your Range</h3>
+            <p>
+                You can upgrade your <a href="#Range">range</a>. You increase your range by 1 for every 2 <a href="#AP">AP</a> used.
+                You upgrade your range by selecting yourself and clicking✨. If you double click it, it will automatically just upgrade your range by 1.
+            </p>
+        </div>
+        <div id="Jury">
+            <h2 class="h">The Jury</h2>
+            <p>
+                When a player dies, they join the jury. Everyone in the jury votes every 24 hours and when the vote ends, every player with 3+ votes gets one extra <a href="#AP">AP</a>. If you don't vote, your vote will be wasted.
+            </p>
+            <h3 id="Upgrading_Range" class="h">✅ Voting</h3>
+            <p>
+                You vote by selecting a player and clicking the ✅ icon. You can remove your vote by selecting the same player and clicking ❎.
+            </p>
+        </div>
+        <script>
+            const bolt = `<svg style="height: 1em; color: lime;" class="fa-bolt stat-icon" viewBox="0 0 320 512"><path fill="currentColor" d="M296 160H180.6l42.6-129.8C227.2 15 215.7 0 200 0H56C44 0 33.8 8.9 32.2 20.8l-32 240C-1.7 275.2 9.5 288 24 288h118.7L96.6 482.5c-3.6 15.2 8 29.5 23.3 29.5 8.4 0 16.4-4.4 20.8-12l176-304c9.3-15.9-2.2-36-20.7-36z"></path></svg>`;
+            const heart = `<svg style="height: 1em; color: red;" class="fa-heart stat-icon" viewBox="0 0 512 512"><path fill="currentColor" d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"></path></svg>`;
+            const bullseye = `<svg style="height: 1em; color: orange;" class="fa-bullseye stat-icon" viewBox="0 0 512 512"><path fill="currentColor" d="M248 8C111.03 8 0 119.03 0 256s111.03 248 248 248 248-111.03 248-248S384.97 8 248 8zm0 432c-101.69 0-184-82.29-184-184 0-101.69 82.29-184 184-184 101.69 0 184 82.29 184 184 0 101.69-82.29 184-184 184zm0-312c-70.69 0-128 57.31-128 128s57.31 128 128 128 128-57.31 128-128-57.31-128-128-128zm0 192c-35.29 0-64-28.71-64-64s28.71-64 64-64 64 28.71 64 64-28.71 64-64 64z"></path></svg>`;
+            document.querySelectorAll("i.bolt-replace").forEach(e => e.outerHTML = bolt);
+            document.querySelectorAll("i.heart-replace").forEach(e => e.outerHTML = heart);
+            document.querySelectorAll("i.bullseye-replace").forEach(e => e.outerHTML = bullseye);
+        </script>
+    </main>
+    <i class="incl" data-incl="nav">NAVIGATION BAR</i>
+</body>
+
+</html>
