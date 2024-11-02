@@ -13,6 +13,7 @@ import api_endpoint from "./api.js";
 import { ws_handler, giveOutApAndBroadcastResults } from "./ws.js"
 import dotEnv from "dotenv";
 dotEnv.config();
+if(!process.env.ADMIN_PASSWORD){ process.env.ADMIN_PASSWORD = "password"; }
 
 initDB();
 
@@ -35,13 +36,13 @@ const httpListener = async (req, res) => {
     return public_endpoint(parsed, req, res);
 };
 let webServer;
-if(process.env.USE_HTTPS == "false"){
-    webServer = http.createServer(httpListener).listen(process.env.PORT);
-}else{
+if(process.env.USE_HTTPS == "true"){
     webServer = https.createServer({
         key: fs.readFileSync(process.env.KEY_PATH),
         cert: fs.readFileSync(process.env.CRT_PATH),
     }, httpListener).listen(process.env.PORT);
+}else{
+    webServer = http.createServer(httpListener).listen(process.env.PORT);
 }
 
 let webSocketServer = new ws.WebSocketServer({
