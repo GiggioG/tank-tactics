@@ -36,13 +36,16 @@ const httpListener = async (req, res) => {
     return public_endpoint(parsed, req, res);
 };
 let webServer;
+function serverCreatedCallback(){
+    console.log(`listening on ${JSON.stringify(webServer.address())}`);
+}
 if(process.env.USE_HTTPS == "true"){
     webServer = https.createServer({
         key: fs.readFileSync(process.env.KEY_PATH),
         cert: fs.readFileSync(process.env.CRT_PATH),
-    }, httpListener).listen(process.env.PORT);
+    }, httpListener).listen(process.env.PORT, serverCreatedCallback);
 }else{
-    webServer = http.createServer(httpListener).listen(process.env.PORT);
+    webServer = http.createServer(httpListener).listen(process.env.PORT || 8080, serverCreatedCallback);
 }
 
 let webSocketServer = new ws.WebSocketServer({
