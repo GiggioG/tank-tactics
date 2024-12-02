@@ -139,7 +139,16 @@ function drawPlayer(p) {
         ctx.fillStyle = COLOURS.winnerName;
         name = `👑${p.name}👑`;
     }
-    ctx.fillText(name, middle, top + MARGIN, innerWidth);
+    const NAME_CUTOFF = 10;
+    if(name.length > NAME_CUTOFF){
+        let arr = name = name.split('');
+        arr.splice(Math.floor(name.length/2), 0, '\n');
+        name = arr.join('');
+    }
+    name = name.split('\n');
+    for(let i = 0; i < name.length; i++){
+        ctx.fillText(name[i], middle, top + MARGIN + 10*i, innerWidth);
+    }
 
     ctx.textBaseline = "bottom";
 
