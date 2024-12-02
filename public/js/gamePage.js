@@ -577,7 +577,7 @@ export async function gamePageInit(_ctx, _width, _height) {
         ctx.stroke();
     }, 250);
 
-    ws = new WebSocket(`wss://${location.host}/api/ws`);
+    ws = new WebSocket(`${location.protocol.replace("http", "ws")}//${location.host}/api/ws`);
     ws.addEventListener("open", () => {
         clearInterval(loadingAnimationInterval);
 
