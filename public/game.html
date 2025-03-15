@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tank Tactics</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/modal.css">
+    <link rel="stylesheet" href="./css/gamePage.css">
+    <script src="./js/api_util.js"></script>
+    <script src="./js/modals.js"></script>
+    <script src="./js/gamePage.js" type="module"></script>
+
+    <script defer src="./includes/nav.js"></script>
+    <script defer src="./js/includes.js"></script>
+    <script defer type="module">
+        import {gamePageInit} from "./js/gamePage.js";
+        (async () => {
+            await getLoggedInUser();
+            await getGameState();
+            if(gameState == "registration"){ location.href = "/account"; }
+            let canvas = document.querySelector("canvas#game-canvas");
+            let ctx = canvas.getContext("2d");
+
+            let {width, height} = document.querySelector("main").getBoundingClientRect();
+
+            canvas.width = width;
+            canvas.height = height;
+
+            gamePageInit(ctx, width, height);
+        })();
+    </script>
+</head>
+
+<body>
+    <main>
+        <canvas id="game-canvas"></canvas>
+    </main>
+    <i class="incl" data-incl="nav">NAVIGATION BAR</i>
+    <div class="clickedSquareUi">
+        <button class="clickedSquareUi-button" id="attackButton">🔫</button>
+        <button class="clickedSquareUi-button" id="giveButton">✋</button>
+        <button class="clickedSquareUi-button" id="moveButton">🏃‍♂️</button>
+        <button class="clickedSquareUi-button" id="upgradeButton">✨</button>
+        <button class="clickedSquareUi-button" id="voteButton"><!-- icon set dynamically through javascript --></button>
+    </div>
+
+    <div class="modalBkg" id="attackModalBkg">
+        <div class="modal">
+            <h2>Attacking 🔫</h2>
+            <form onsubmit="return false;"> <!-- stackoverflow -->
+                <p>
+                    You are attacking <span id="attackPatientName"></span>.<br>
+                    How much damage do you want to deal?
+                </p>
+
+                <label>Damage: </label><input type="number" class="amount" min="1"><br>
+                <br>
+                <button id="modalAttackButton">Attack</button>
+                <button onclick="closeModal()">Cancel</button>
+                <br>
+                <p class="modalError"></p>
+            </form>
+        </div>
+    </div>
+    <div class="modalBkg" id="giveModalBkg">
+        <div class="modal">
+            <h2>Giving AP ✋</h2>
+            <form onsubmit="return false;"> <!-- stackoverflow -->
+                <p>
+                    You are giving AP to <span id="givePatientName"></span>.<br>
+                    How much AP do you want to give?
+                </p>
+
+                <label>AP: </label><input type="number" class="amount" min="1"><br>
+                <br>
+                <button id="modalGiveButton">Give</button>
+                <button onclick="closeModal()">Cancel</button>
+                <br>
+                <p class="modalError"></p>
+            </form>
+        </div>
+    </div>
+    <div class="modalBkg" id="upgradeModalBkg">
+        <div class="modal">
+            <h2>Upgrading your range ✨</h2>
+            <form onsubmit="return false;"> <!-- stackoverflow -->
+                <p>
+                    With how much do you want to upgrade?
+                </p>
+
+                <label>AP: </label><input type="number" class="amount" min="1"><br>
+                <br>
+                <button id="modalUpgradeButton">Upgrade</button>
+                <button onclick="closeModal()">Cancel</button>
+                <br>
+                <p class="modalError"></p>
+            </form>
+        </div>
+    </div>
+    <div class="modalBkg" id="errorModalBkg">
+        <div class="modal">
+            <h2>An error has occured</h2>
+            <form onsubmit="return false;"> <!-- stackoverflow -->
+                <p class="modalError"></p>
+                <br>
+                <button id="errorModalOKButton">OK</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

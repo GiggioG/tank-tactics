@@ -1,0 +1,107 @@
+:root {
+    --text-col: white;
+    --bkg-col: black;
+    --button-bkg-col: rgb(50, 50, 50);
+    --highlight-col: rgb(0, 0, 255);
+    --light-highlight-col: rgb(127, 127, 255);
+    --nav-height: 3em;
+    --list-empty-message-col: grey;
+    --playerlist-dead-col: red;
+    --playerlist-winner-col: yellow;
+}
+
+* {
+    font-family: 'Consolas', monospace;
+}
+
+main {
+    height: calc(100dvh - var(--nav-height));
+    overflow: scroll;
+    color: var(--text-col);
+    background-color: var(--bkg-col);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+:not(main *) {
+    margin: 0px;
+    padding: 0px;
+}
+
+button {
+    border: 3px groove var(--text-col);
+    background-color: var(--button-bkg-col);
+    color: var(--text-col);
+    font-size: large;
+    margin: 10px;
+}
+
+button:active {
+    border-style: inset;
+}
+
+ul {
+    list-style: square;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+nav ul {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    bottom: 0px;
+    list-style: none;
+    padding-left: 0px;
+    height: var(--nav-height);
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--text-col);
+    background-color: var(--bkg-col);
+}
+
+nav ul li {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+nav ul li a {
+    fill: var(--text-col);
+}
+
+nav ul li.selected a {
+    fill: var(--light-highlight-col);
+}
+
+li.playerList-winner {
+    color: var(playerlist-winner-col);
+    font-weight: bold;
+}
+
+li.playerList-winner::before {
+    content: "👑";
+}
+
+li.playerList-dead {
+    color: var(playerlist-dead-col);
+    font-style: italic;
+}
+
+li.playerList-dead::before {
+    content: "💀";
+}
+
+.listIsEmptyMessage {
+    color: var(--list-empty-message-col);
+    /* font-size: small; */
+    font-style: italic;
+}

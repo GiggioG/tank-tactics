@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User list</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <script src="./js/api_util.js"></script>
+
+    <script defer src="./includes/nav.js"></script>
+    <script defer src="./js/includes.js"></script>
+    <script defer>
+        (async () => {
+            const list = await (await fetch(`${location.origin}/api/list_users`)).json();
+            const ul = document.querySelector("ul#userlist");
+            if(list.length == 0){
+                let p = document.createElement("p");
+                p.classList.add("listIsEmptyMessage");
+                p.innerHTML = "No players registered yet.";
+                ul.replaceWith(p);
+            }
+            await getLoggedInUser();
+            await getGameState();
+
+            list.sort((a, b)=>b.hp-a.hp).forEach(u => {
+                let li = document.createElement("li");
+                li.innerText = u.name;
+                if (u.name == loggedInUname) {
+                    li.innerText += " (You)";
+                }
+
+                if(gameState == "in-game" && u.hp <= 0){
+                    li.classList.add("playerList-dead");
+                }else if(gameState == "post-game" && u.hp > 0){
+                    li.classList.add("playerList-winner");
+                }
+                ul.appendChild(li);
+            });
+        })();
+    </script>
+</head>
+
+<body>
+    <main>
+        <h2>User list</h2>
+        <ul id="userlist"></ul>
+    </main>
+    <i class="incl" data-incl="nav">NAVIGATION BAR</i>
+</body>
+
+</html>
