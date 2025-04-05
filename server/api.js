@@ -87,6 +87,20 @@ function login(query, cookies) {
     return _createSession(uname);
 }
 
+function _changePassword(uname, newPassword){
+    if(!db.accounts[uname]){ return {status: 401, data: "This user does not exist." }; }
+    const newSalt = genSalt();
+    db.accounts[uname].salt = newSalt;
+    db.accounts[uname].passwd = getHash(newPassword + newSalt);
+    for(const sess in db.sessions){
+	if(db.sessions[sess].uname == uname){
+	    delete db.sessions[sess];
+	}
+    }
+    saveDB();
+    return {status: 200, data: `${uname}'s password successfuly changed`};
+}
+
 
 function logout(query, cookies) {
     if (!cookies["session"]) {
